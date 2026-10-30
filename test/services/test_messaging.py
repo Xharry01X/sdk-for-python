@@ -18,6 +18,7 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self):
         await self.client.aclose()
 
+
     @respx.mock
     async def test_list_messages(self):
         data = {
@@ -28,7 +29,11 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.messaging.list_messages()
+        response = await self.messaging.list_messages(
+            queries=[],
+            search='<SEARCH>',
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -53,6 +58,18 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
             '<MESSAGE_ID>',
             '<SUBJECT>',
             '<CONTENT>',
+            topics=[],
+            users=[],
+            targets=[],
+            cc=[],
+            bcc=[],
+            attachments=[],
+            draft=False,
+            html=False,
+            scheduled_at='2020-10-15T06:38:00.000+00:00',
+            reply_to_email='email@example.com',
+            reply_to_name='<REPLY_TO_NAME>',
+            emails=[],
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -76,6 +93,20 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.messaging.update_email(
             '<MESSAGE_ID>',
+            topics=[],
+            users=[],
+            targets=[],
+            subject='<SUBJECT>',
+            content='<CONTENT>',
+            draft=False,
+            html=False,
+            cc=[],
+            bcc=[],
+            scheduled_at='2020-10-15T06:38:00.000+00:00',
+            attachments=[],
+            reply_to_email='email@example.com',
+            reply_to_name='<REPLY_TO_NAME>',
+            emails=[],
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -99,6 +130,25 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.messaging.create_push(
             '<MESSAGE_ID>',
+            title='<TITLE>',
+            body='<BODY>',
+            topics=[],
+            users=[],
+            targets=[],
+            data={},
+            action='<ACTION>',
+            image='<ID1:ID2>',
+            icon='<ICON>',
+            sound='<SOUND>',
+            color='<COLOR>',
+            tag='<TAG>',
+            badge=1,
+            draft=False,
+            scheduled_at='2020-10-15T06:38:00.000+00:00',
+            content_available=False,
+            critical=False,
+            priority='normal',
+            channel_id='<CHANNEL_ID>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -122,6 +172,25 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.messaging.update_push(
             '<MESSAGE_ID>',
+            topics=[],
+            users=[],
+            targets=[],
+            title='<TITLE>',
+            body='<BODY>',
+            data={},
+            action='<ACTION>',
+            image='<ID1:ID2>',
+            icon='<ICON>',
+            sound='<SOUND>',
+            color='<COLOR>',
+            tag='<TAG>',
+            badge=1,
+            draft=False,
+            scheduled_at='2020-10-15T06:38:00.000+00:00',
+            content_available=False,
+            critical=False,
+            priority='normal',
+            channel_id='<CHANNEL_ID>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -146,30 +215,11 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.messaging.create_sms(
             '<MESSAGE_ID>',
             '<CONTENT>',
-        )
-        self.assertEqual(response.to_dict(), data)
-
-    @respx.mock
-    async def test_create_sms(self):
-        data = {
-            "$id": "5e5ea5c16897e",
-            "$createdAt": "2020-10-15T06:38:00.000+00:00",
-            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
-            "providerType": "email",
-            "topics": [],
-            "users": [],
-            "targets": [],
-            "deliveredTotal": 1.0,
-            "data": {},
-            "status": "processing",
-        }
-        headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
-        )
-        response = await self.messaging.create_sms(
-            '<MESSAGE_ID>',
-            '<CONTENT>',
+            topics=[],
+            users=[],
+            targets=[],
+            draft=False,
+            scheduled_at='2020-10-15T06:38:00.000+00:00',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -193,29 +243,12 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.messaging.update_sms(
             '<MESSAGE_ID>',
-        )
-        self.assertEqual(response.to_dict(), data)
-
-    @respx.mock
-    async def test_update_sms(self):
-        data = {
-            "$id": "5e5ea5c16897e",
-            "$createdAt": "2020-10-15T06:38:00.000+00:00",
-            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
-            "providerType": "email",
-            "topics": [],
-            "users": [],
-            "targets": [],
-            "deliveredTotal": 1.0,
-            "data": {},
-            "status": "processing",
-        }
-        headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
-        )
-        response = await self.messaging.update_sms(
-            '<MESSAGE_ID>',
+            topics=[],
+            users=[],
+            targets=[],
+            content='<CONTENT>',
+            draft=False,
+            scheduled_at='2020-10-15T06:38:00.000+00:00',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -266,6 +299,8 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.messaging.list_targets(
             '<MESSAGE_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -279,28 +314,10 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.messaging.list_providers()
-        self.assertEqual(response.to_dict(), data)
-
-    @respx.mock
-    async def test_create_apns_provider(self):
-        data = {
-            "$id": "5e5ea5c16897e",
-            "$createdAt": "2020-10-15T06:38:00.000+00:00",
-            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
-            "name": "Mailgun",
-            "provider": "mailgun",
-            "enabled": True,
-            "type": "sms",
-            "credentials": {},
-        }
-        headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
-        )
-        response = await self.messaging.create_apns_provider(
-            '<PROVIDER_ID>',
-            '<NAME>',
+        response = await self.messaging.list_providers(
+            queries=[],
+            search='<SEARCH>',
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -323,6 +340,12 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.messaging.create_apns_provider(
             '<PROVIDER_ID>',
             '<NAME>',
+            auth_key='<AUTH_KEY>',
+            auth_key_id='<AUTH_KEY_ID>',
+            team_id='<TEAM_ID>',
+            bundle_id='<BUNDLE_ID>',
+            sandbox=False,
+            enabled=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -344,27 +367,13 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.messaging.update_apns_provider(
             '<PROVIDER_ID>',
-        )
-        self.assertEqual(response.to_dict(), data)
-
-    @respx.mock
-    async def test_update_apns_provider(self):
-        data = {
-            "$id": "5e5ea5c16897e",
-            "$createdAt": "2020-10-15T06:38:00.000+00:00",
-            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
-            "name": "Mailgun",
-            "provider": "mailgun",
-            "enabled": True,
-            "type": "sms",
-            "credentials": {},
-        }
-        headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
-        )
-        response = await self.messaging.update_apns_provider(
-            '<PROVIDER_ID>',
+            name='<NAME>',
+            enabled=False,
+            auth_key='<AUTH_KEY>',
+            auth_key_id='<AUTH_KEY_ID>',
+            team_id='<TEAM_ID>',
+            bundle_id='<BUNDLE_ID>',
+            sandbox=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -387,6 +396,9 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.messaging.create_appwrite_provider(
             '<PROVIDER_ID>',
             '<NAME>',
+            enabled=False,
+            qos=1,
+            expiry=1,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -408,6 +420,10 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.messaging.update_appwrite_provider(
             '<PROVIDER_ID>',
+            name='<NAME>',
+            enabled=False,
+            qos=1,
+            expiry=1,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -430,28 +446,8 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.messaging.create_fcm_provider(
             '<PROVIDER_ID>',
             '<NAME>',
-        )
-        self.assertEqual(response.to_dict(), data)
-
-    @respx.mock
-    async def test_create_fcm_provider(self):
-        data = {
-            "$id": "5e5ea5c16897e",
-            "$createdAt": "2020-10-15T06:38:00.000+00:00",
-            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
-            "name": "Mailgun",
-            "provider": "mailgun",
-            "enabled": True,
-            "type": "sms",
-            "credentials": {},
-        }
-        headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
-        )
-        response = await self.messaging.create_fcm_provider(
-            '<PROVIDER_ID>',
-            '<NAME>',
+            service_account_json={},
+            enabled=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -473,27 +469,9 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.messaging.update_fcm_provider(
             '<PROVIDER_ID>',
-        )
-        self.assertEqual(response.to_dict(), data)
-
-    @respx.mock
-    async def test_update_fcm_provider(self):
-        data = {
-            "$id": "5e5ea5c16897e",
-            "$createdAt": "2020-10-15T06:38:00.000+00:00",
-            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
-            "name": "Mailgun",
-            "provider": "mailgun",
-            "enabled": True,
-            "type": "sms",
-            "credentials": {},
-        }
-        headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
-        )
-        response = await self.messaging.update_fcm_provider(
-            '<PROVIDER_ID>',
+            name='<NAME>',
+            enabled=False,
+            service_account_json={},
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -516,6 +494,14 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.messaging.create_mailgun_provider(
             '<PROVIDER_ID>',
             '<NAME>',
+            api_key='<API_KEY>',
+            domain='example.com',
+            is_eu_region=False,
+            from_name='<FROM_NAME>',
+            from_email='email@example.com',
+            reply_to_name='<REPLY_TO_NAME>',
+            reply_to_email='email@example.com',
+            enabled=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -537,6 +523,15 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.messaging.update_mailgun_provider(
             '<PROVIDER_ID>',
+            name='<NAME>',
+            api_key='<API_KEY>',
+            domain='example.com',
+            is_eu_region=False,
+            enabled=False,
+            from_name='<FROM_NAME>',
+            from_email='email@example.com',
+            reply_to_name='<REPLY_TO_NAME>',
+            reply_to_email='<REPLY_TO_EMAIL>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -559,6 +554,10 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.messaging.create_msg91_provider(
             '<PROVIDER_ID>',
             '<NAME>',
+            template_id='<TEMPLATE_ID>',
+            sender_id='<SENDER_ID>',
+            auth_key='<AUTH_KEY>',
+            enabled=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -580,6 +579,11 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.messaging.update_msg91_provider(
             '<PROVIDER_ID>',
+            name='<NAME>',
+            enabled=False,
+            template_id='<TEMPLATE_ID>',
+            sender_id='<SENDER_ID>',
+            auth_key='<AUTH_KEY>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -602,6 +606,12 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.messaging.create_resend_provider(
             '<PROVIDER_ID>',
             '<NAME>',
+            api_key='<API_KEY>',
+            from_name='<FROM_NAME>',
+            from_email='email@example.com',
+            reply_to_name='<REPLY_TO_NAME>',
+            reply_to_email='email@example.com',
+            enabled=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -623,6 +633,13 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.messaging.update_resend_provider(
             '<PROVIDER_ID>',
+            name='<NAME>',
+            enabled=False,
+            api_key='<API_KEY>',
+            from_name='<FROM_NAME>',
+            from_email='email@example.com',
+            reply_to_name='<REPLY_TO_NAME>',
+            reply_to_email='<REPLY_TO_EMAIL>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -645,6 +662,12 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.messaging.create_sendgrid_provider(
             '<PROVIDER_ID>',
             '<NAME>',
+            api_key='<API_KEY>',
+            from_name='<FROM_NAME>',
+            from_email='email@example.com',
+            reply_to_name='<REPLY_TO_NAME>',
+            reply_to_email='email@example.com',
+            enabled=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -666,6 +689,13 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.messaging.update_sendgrid_provider(
             '<PROVIDER_ID>',
+            name='<NAME>',
+            enabled=False,
+            api_key='<API_KEY>',
+            from_name='<FROM_NAME>',
+            from_email='email@example.com',
+            reply_to_name='<REPLY_TO_NAME>',
+            reply_to_email='<REPLY_TO_EMAIL>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -688,6 +718,14 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.messaging.create_ses_provider(
             '<PROVIDER_ID>',
             '<NAME>',
+            access_key='<ACCESS_KEY>',
+            secret_key='<SECRET_KEY>',
+            region='<REGION>',
+            from_name='<FROM_NAME>',
+            from_email='email@example.com',
+            reply_to_name='<REPLY_TO_NAME>',
+            reply_to_email='email@example.com',
+            enabled=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -709,6 +747,15 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.messaging.update_ses_provider(
             '<PROVIDER_ID>',
+            name='<NAME>',
+            enabled=False,
+            access_key='<ACCESS_KEY>',
+            secret_key='<SECRET_KEY>',
+            region='<REGION>',
+            from_name='<FROM_NAME>',
+            from_email='email@example.com',
+            reply_to_name='<REPLY_TO_NAME>',
+            reply_to_email='<REPLY_TO_EMAIL>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -732,29 +779,17 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
             '<PROVIDER_ID>',
             '<NAME>',
             '<HOST>',
-        )
-        self.assertEqual(response.to_dict(), data)
-
-    @respx.mock
-    async def test_create_smtp_provider(self):
-        data = {
-            "$id": "5e5ea5c16897e",
-            "$createdAt": "2020-10-15T06:38:00.000+00:00",
-            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
-            "name": "Mailgun",
-            "provider": "mailgun",
-            "enabled": True,
-            "type": "sms",
-            "credentials": {},
-        }
-        headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
-        )
-        response = await self.messaging.create_smtp_provider(
-            '<PROVIDER_ID>',
-            '<NAME>',
-            '<HOST>',
+            port=1,
+            username='<USERNAME>',
+            password='password',
+            encryption='none',
+            auto_tls=False,
+            mailer='<MAILER>',
+            from_name='<FROM_NAME>',
+            from_email='email@example.com',
+            reply_to_name='<REPLY_TO_NAME>',
+            reply_to_email='email@example.com',
+            enabled=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -776,27 +811,19 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.messaging.update_smtp_provider(
             '<PROVIDER_ID>',
-        )
-        self.assertEqual(response.to_dict(), data)
-
-    @respx.mock
-    async def test_update_smtp_provider(self):
-        data = {
-            "$id": "5e5ea5c16897e",
-            "$createdAt": "2020-10-15T06:38:00.000+00:00",
-            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
-            "name": "Mailgun",
-            "provider": "mailgun",
-            "enabled": True,
-            "type": "sms",
-            "credentials": {},
-        }
-        headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
-        )
-        response = await self.messaging.update_smtp_provider(
-            '<PROVIDER_ID>',
+            name='<NAME>',
+            host='<HOST>',
+            port=1,
+            username='<USERNAME>',
+            password='password',
+            encryption='none',
+            auto_tls=False,
+            mailer='<MAILER>',
+            from_name='<FROM_NAME>',
+            from_email='email@example.com',
+            reply_to_name='<REPLY_TO_NAME>',
+            reply_to_email='<REPLY_TO_EMAIL>',
+            enabled=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -819,6 +846,10 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.messaging.create_telesign_provider(
             '<PROVIDER_ID>',
             '<NAME>',
+            xfrom='+12065550100',
+            customer_id='<CUSTOMER_ID>',
+            api_key='<API_KEY>',
+            enabled=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -840,6 +871,11 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.messaging.update_telesign_provider(
             '<PROVIDER_ID>',
+            name='<NAME>',
+            enabled=False,
+            customer_id='<CUSTOMER_ID>',
+            api_key='<API_KEY>',
+            xfrom='<FROM>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -862,6 +898,10 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.messaging.create_textmagic_provider(
             '<PROVIDER_ID>',
             '<NAME>',
+            xfrom='+12065550100',
+            username='<USERNAME>',
+            api_key='<API_KEY>',
+            enabled=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -883,6 +923,11 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.messaging.update_textmagic_provider(
             '<PROVIDER_ID>',
+            name='<NAME>',
+            enabled=False,
+            username='<USERNAME>',
+            api_key='<API_KEY>',
+            xfrom='<FROM>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -905,6 +950,10 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.messaging.create_twilio_provider(
             '<PROVIDER_ID>',
             '<NAME>',
+            xfrom='<FROM>',
+            account_sid='<ACCOUNT_SID>',
+            auth_token='<AUTH_TOKEN>',
+            enabled=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -926,6 +975,11 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.messaging.update_twilio_provider(
             '<PROVIDER_ID>',
+            name='<NAME>',
+            enabled=False,
+            account_sid='<ACCOUNT_SID>',
+            auth_token='<AUTH_TOKEN>',
+            xfrom='<FROM>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -948,6 +1002,10 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.messaging.create_vonage_provider(
             '<PROVIDER_ID>',
             '<NAME>',
+            xfrom='+12065550100',
+            api_key='<API_KEY>',
+            api_secret='<API_SECRET>',
+            enabled=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -969,6 +1027,11 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.messaging.update_vonage_provider(
             '<PROVIDER_ID>',
+            name='<NAME>',
+            enabled=False,
+            api_key='<API_KEY>',
+            api_secret='<API_SECRET>',
+            xfrom='<FROM>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1015,7 +1078,11 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.messaging.list_topics()
+        response = await self.messaging.list_topics(
+            queries=[],
+            search='<SEARCH>',
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1038,6 +1105,10 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.messaging.create_topic(
             '<TOPIC_ID>',
             '<NAME>',
+            subscribe=[],
+            qos=1,
+            expiry=1,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1082,6 +1153,11 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.messaging.update_topic(
             '<TOPIC_ID>',
+            name='<NAME>',
+            subscribe=[],
+            qos=1,
+            expiry=1,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1109,6 +1185,9 @@ class MessagingServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.messaging.list_subscribers(
             '<TOPIC_ID>',
+            queries=[],
+            search='<SEARCH>',
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 

@@ -28,7 +28,10 @@ class AdvisorServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.advisor.list_reports()
+        response = await self.advisor.list_reports(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -79,6 +82,8 @@ class AdvisorServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.advisor.list_insights(
             '<REPORT_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 

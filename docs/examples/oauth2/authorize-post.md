@@ -17,7 +17,7 @@ async def main():
     result: Oauth2Authorize = await oauth2.authorize_post(
         client_id = '<CLIENT_ID>', # optional
         redirect_uri = 'https://example.com', # optional
-        response_type = '', # optional
+        response_type = None, # optional
         scope = '<SCOPE>', # optional
         state = '<STATE>', # optional
         nonce = '<NONCE>', # optional

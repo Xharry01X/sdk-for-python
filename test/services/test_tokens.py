@@ -31,6 +31,8 @@ class TokensServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.tokens.list(
             '<BUCKET_ID>',
             '<FILE_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -52,6 +54,7 @@ class TokensServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.tokens.create_file_token(
             '<BUCKET_ID>',
             '<FILE_ID>',
+            expire='2020-10-15T06:38:00.000+00:00',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -92,6 +95,7 @@ class TokensServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.tokens.update(
             '<TOKEN_ID>',
+            expire='2020-10-15T06:38:00.000+00:00',
         )
         self.assertEqual(response.to_dict(), data)
 

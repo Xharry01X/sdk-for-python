@@ -33,6 +33,7 @@ class ProxyServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.proxy.create_invalidation(
             'example.com',
             'tag',
+            reference='<REFERENCE>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -46,7 +47,10 @@ class ProxyServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.proxy.list_rules()
+        response = await self.proxy.list_rules(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -103,6 +107,7 @@ class ProxyServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.proxy.create_function_rule(
             'example.com',
             '<FUNCTION_ID>',
+            branch='<BRANCH>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -164,6 +169,7 @@ class ProxyServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.proxy.create_site_rule(
             'example.com',
             '<SITE_ID>',
+            branch='<BRANCH>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -193,6 +199,7 @@ class ProxyServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.proxy.create_smtp_rule(
             'example.com',
             '<FUNCTION_ID>',
+            branch='<BRANCH>',
         )
         self.assertEqual(response.to_dict(), data)
 

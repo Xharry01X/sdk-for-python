@@ -18,6 +18,7 @@ class LocaleServiceTest(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self):
         await self.client.aclose()
 
+
     @respx.mock
     async def test_get(self):
         data = {
@@ -46,7 +47,9 @@ class LocaleServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.locale.list_codes()
+        response = await self.locale.list_codes(
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -59,7 +62,9 @@ class LocaleServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.locale.list_continents()
+        response = await self.locale.list_continents(
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -72,7 +77,9 @@ class LocaleServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.locale.list_countries()
+        response = await self.locale.list_countries(
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -85,7 +92,9 @@ class LocaleServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.locale.list_countries_eu()
+        response = await self.locale.list_countries_eu(
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -98,7 +107,9 @@ class LocaleServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.locale.list_countries_phones()
+        response = await self.locale.list_countries_phones(
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -111,7 +122,9 @@ class LocaleServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.locale.list_currencies()
+        response = await self.locale.list_currencies(
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -124,5 +137,7 @@ class LocaleServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.locale.list_languages()
+        response = await self.locale.list_languages(
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)

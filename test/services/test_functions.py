@@ -18,6 +18,7 @@ class FunctionsServiceTest(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self):
         await self.client.aclose()
 
+
     @respx.mock
     async def test_list(self):
         data = {
@@ -28,7 +29,11 @@ class FunctionsServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.functions.list()
+        response = await self.functions.list(
+            queries=[],
+            search='<SEARCH>',
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -77,6 +82,27 @@ class FunctionsServiceTest(unittest.IsolatedAsyncioTestCase):
             '<FUNCTION_ID>',
             '<NAME>',
             'node-14.5',
+            execute=[],
+            events=[],
+            schedule='0 0 * * *',
+            timeout=1,
+            enabled=False,
+            logging=False,
+            entrypoint='<ENTRYPOINT>',
+            commands='<COMMANDS>',
+            scopes=[],
+            installation_id='<INSTALLATION_ID>',
+            provider_repository_id='<PROVIDER_REPOSITORY_ID>',
+            provider_branch='<PROVIDER_BRANCH>',
+            provider_silent_mode=False,
+            provider_root_directory='<PROVIDER_ROOT_DIRECTORY>',
+            provider_branches=[],
+            provider_paths=[],
+            build_specification='s-1vcpu-512mb',
+            runtime_specification='s-1vcpu-512mb',
+            deployment_retention=1,
+            interval=1,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -90,7 +116,9 @@ class FunctionsServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.functions.list_runtimes()
+        response = await self.functions.list_runtimes(
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -103,7 +131,10 @@ class FunctionsServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.functions.list_specifications()
+        response = await self.functions.list_specifications(
+            type='runtimes',
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -198,6 +229,29 @@ class FunctionsServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.functions.update(
             '<FUNCTION_ID>',
             '<NAME>',
+            runtime='node-14.5',
+            execute=[],
+            events=[],
+            schedule='0 0 * * *',
+            timeout=1,
+            enabled=False,
+            logging=False,
+            entrypoint='<ENTRYPOINT>',
+            commands='<COMMANDS>',
+            scopes=[],
+            installation_id='<INSTALLATION_ID>',
+            provider_repository_id='<PROVIDER_REPOSITORY_ID>',
+            provider_branch='<PROVIDER_BRANCH>',
+            provider_silent_mode=False,
+            provider_root_directory='<PROVIDER_ROOT_DIRECTORY>',
+            provider_branches=[],
+            provider_paths=[],
+            build_specification='s-1vcpu-512mb',
+            runtime_specification='s-1vcpu-512mb',
+            deployment_retention=1,
+            interval=1,
+            description='<DESCRIPTION>',
+            email_enabled=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -273,6 +327,9 @@ class FunctionsServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.functions.list_deployments(
             '<FUNCTION_ID>',
+            queries=[],
+            search='<SEARCH>',
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -314,7 +371,9 @@ class FunctionsServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.functions.create_deployment(
             '<FUNCTION_ID>',
             InputFile.from_bytes(bytearray(), "example.file"),
-            True,
+            False,
+            entrypoint='<ENTRYPOINT>',
+            commands='<COMMANDS>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -356,6 +415,7 @@ class FunctionsServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.functions.create_duplicate_deployment(
             '<FUNCTION_ID>',
             '<DEPLOYMENT_ID>',
+            build_id='<BUILD_ID>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -401,6 +461,7 @@ class FunctionsServiceTest(unittest.IsolatedAsyncioTestCase):
             '<ROOT_DIRECTORY>',
             'commit',
             '<REFERENCE>',
+            activate=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -443,6 +504,7 @@ class FunctionsServiceTest(unittest.IsolatedAsyncioTestCase):
             '<FUNCTION_ID>',
             'branch',
             '<REFERENCE>',
+            activate=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -510,6 +572,8 @@ class FunctionsServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.functions.get_deployment_download(
             '<FUNCTION_ID>',
             '<DEPLOYMENT_ID>',
+            type='source',
+            token='<TOKEN>',
         )
         self.assertEqual(response, data)
 
@@ -566,6 +630,8 @@ class FunctionsServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.functions.list_executions(
             '<FUNCTION_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -597,6 +663,12 @@ class FunctionsServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.functions.create_execution(
             '<FUNCTION_ID>',
+            body='<BODY>',
+            xasync=False,
+            path='<PATH>',
+            method='GET',
+            headers={},
+            scheduled_at='<SCHEDULED_AT>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -657,6 +729,8 @@ class FunctionsServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.functions.list_variables(
             '<FUNCTION_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -682,6 +756,8 @@ class FunctionsServiceTest(unittest.IsolatedAsyncioTestCase):
             '<VARIABLE_ID>',
             '<KEY>',
             '<VALUE>',
+            secret=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -728,6 +804,10 @@ class FunctionsServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.functions.update_variable(
             '<FUNCTION_ID>',
             '<VARIABLE_ID>',
+            key='<KEY>',
+            value='<VALUE>',
+            secret=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 

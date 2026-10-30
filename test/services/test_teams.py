@@ -28,7 +28,11 @@ class TeamsServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.teams.list()
+        response = await self.teams.list(
+            queries=[],
+            search='<SEARCH>',
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -48,6 +52,7 @@ class TeamsServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.teams.create(
             '<TEAM_ID>',
             '<NAME>',
+            roles=[],
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -114,6 +119,8 @@ class TeamsServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.teams.list_installations(
             '<TEAM_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -137,6 +144,7 @@ class TeamsServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.teams.create_installation(
             '<TEAM_ID>',
             '<APP_ID>',
+            authorization_details='<AUTHORIZATION_DETAILS>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -183,6 +191,7 @@ class TeamsServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.teams.update_installation(
             '<TEAM_ID>',
             '<INSTALLATION_ID>',
+            authorization_details='<AUTHORIZATION_DETAILS>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -211,6 +220,9 @@ class TeamsServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.teams.list_memberships(
             '<TEAM_ID>',
+            queries=[],
+            search='<SEARCH>',
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -240,6 +252,12 @@ class TeamsServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.teams.create_membership(
             '<TEAM_ID>',
             [],
+            email='email@example.com',
+            user_id='<USER_ID>',
+            phone='+12065550100',
+            url='https://example.com',
+            name='<NAME>',
+            membership_id='<MEMBERSHIP_ID>',
         )
         self.assertEqual(response.to_dict(), data)
 

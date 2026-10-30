@@ -28,7 +28,10 @@ class BackupsServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.backups.list_archives()
+        response = await self.backups.list_archives(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -49,6 +52,7 @@ class BackupsServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.backups.create_archive(
             [],
+            resource_id='<RESOURCE_ID>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -95,7 +99,10 @@ class BackupsServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.backups.list_policies()
+        response = await self.backups.list_policies(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -121,6 +128,9 @@ class BackupsServiceTest(unittest.IsolatedAsyncioTestCase):
             [],
             1,
             'schedule',
+            name='<NAME>',
+            resource_id='<RESOURCE_ID>',
+            enabled=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -167,6 +177,10 @@ class BackupsServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.backups.update_policy(
             '<POLICY_ID>',
+            name='<NAME>',
+            retention=1,
+            schedule='schedule',
+            enabled=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -203,6 +217,8 @@ class BackupsServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.backups.create_restoration(
             '<ARCHIVE_ID>',
             [],
+            new_resource_id='<NEW_RESOURCE_ID>',
+            new_resource_name='<NEW_RESOURCE_NAME>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -216,7 +232,10 @@ class BackupsServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.backups.list_restorations()
+        response = await self.backups.list_restorations(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock

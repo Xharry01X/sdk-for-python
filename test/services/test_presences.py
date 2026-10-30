@@ -18,6 +18,7 @@ class PresencesServiceTest(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self):
         await self.client.aclose()
 
+
     @respx.mock
     async def test_list(self):
         data = {
@@ -28,7 +29,11 @@ class PresencesServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.presences.list()
+        response = await self.presences.list(
+            queries=[],
+            total=False,
+            ttl=1,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -68,6 +73,9 @@ class PresencesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<PRESENCE_ID>',
             '<USER_ID>',
             '<STATUS>',
+            permissions=[],
+            expires_at='2020-10-15T06:38:00.000+00:00',
+            metadata={},
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -88,6 +96,11 @@ class PresencesServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.presences.update(
             '<PRESENCE_ID>',
             '<USER_ID>',
+            status='<STATUS>',
+            expires_at='2020-10-15T06:38:00.000+00:00',
+            metadata={},
+            permissions=[],
+            purge=False,
         )
         self.assertEqual(response.to_dict(), data)
 

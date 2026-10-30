@@ -30,5 +30,6 @@ class EmbeddingsServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.embeddings.create_text_embeddings(
             [],
+            model='nomic-embed-text',
         )
         self.assertEqual(response.to_dict(), data)

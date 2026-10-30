@@ -28,7 +28,11 @@ class SitesServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.sites.list()
+        response = await self.sites.list(
+            queries=[],
+            search='<SEARCH>',
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -80,6 +84,27 @@ class SitesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<NAME>',
             'analog',
             'node-14.5',
+            enabled=False,
+            logging=False,
+            timeout=1,
+            install_command='<INSTALL_COMMAND>',
+            build_command='<BUILD_COMMAND>',
+            start_command='<START_COMMAND>',
+            output_directory='<OUTPUT_DIRECTORY>',
+            adapter='static',
+            installation_id='<INSTALLATION_ID>',
+            fallback_file='<FALLBACK_FILE>',
+            provider_repository_id='<PROVIDER_REPOSITORY_ID>',
+            provider_branch='<PROVIDER_BRANCH>',
+            provider_silent_mode=False,
+            provider_root_directory='<PROVIDER_ROOT_DIRECTORY>',
+            provider_branches=[],
+            provider_paths=[],
+            build_specification='s-1vcpu-512mb',
+            runtime_specification='s-1vcpu-512mb',
+            deployment_retention=1,
+            scopes=[],
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -93,7 +118,9 @@ class SitesServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.sites.list_frameworks()
+        response = await self.sites.list_frameworks(
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -106,7 +133,10 @@ class SitesServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.sites.list_specifications()
+        response = await self.sites.list_specifications(
+            type='runtimes',
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -206,6 +236,28 @@ class SitesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<SITE_ID>',
             '<NAME>',
             'analog',
+            enabled=False,
+            logging=False,
+            timeout=1,
+            install_command='<INSTALL_COMMAND>',
+            build_command='<BUILD_COMMAND>',
+            start_command='<START_COMMAND>',
+            output_directory='<OUTPUT_DIRECTORY>',
+            build_runtime='node-14.5',
+            adapter='static',
+            fallback_file='<FALLBACK_FILE>',
+            installation_id='<INSTALLATION_ID>',
+            provider_repository_id='<PROVIDER_REPOSITORY_ID>',
+            provider_branch='<PROVIDER_BRANCH>',
+            provider_silent_mode=False,
+            provider_root_directory='<PROVIDER_ROOT_DIRECTORY>',
+            provider_branches=[],
+            provider_paths=[],
+            build_specification='s-1vcpu-512mb',
+            runtime_specification='s-1vcpu-512mb',
+            deployment_retention=1,
+            scopes=[],
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -283,6 +335,9 @@ class SitesServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.sites.list_deployments(
             '<SITE_ID>',
+            queries=[],
+            search='<SEARCH>',
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -324,6 +379,10 @@ class SitesServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.sites.create_deployment(
             '<SITE_ID>',
             InputFile.from_bytes(bytearray(), "example.file"),
+            install_command='<INSTALL_COMMAND>',
+            build_command='<BUILD_COMMAND>',
+            output_directory='<OUTPUT_DIRECTORY>',
+            activate=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -410,6 +469,7 @@ class SitesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<ROOT_DIRECTORY>',
             'branch',
             '<REFERENCE>',
+            activate=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -452,6 +512,7 @@ class SitesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<SITE_ID>',
             'branch',
             '<REFERENCE>',
+            activate=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -519,6 +580,8 @@ class SitesServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.sites.get_deployment_download(
             '<SITE_ID>',
             '<DEPLOYMENT_ID>',
+            type='source',
+            token='<TOKEN>',
         )
         self.assertEqual(response, data)
 
@@ -575,6 +638,8 @@ class SitesServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.sites.list_logs(
             '<SITE_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -635,6 +700,8 @@ class SitesServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.sites.list_variables(
             '<SITE_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -660,6 +727,8 @@ class SitesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<VARIABLE_ID>',
             '<KEY>',
             '<VALUE>',
+            secret=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -706,6 +775,10 @@ class SitesServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.sites.update_variable(
             '<SITE_ID>',
             '<VARIABLE_ID>',
+            key='<KEY>',
+            value='<VALUE>',
+            secret=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 

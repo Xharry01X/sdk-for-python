@@ -18,6 +18,7 @@ class OrganizationServiceTest(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self):
         await self.client.aclose()
 
+
     @respx.mock
     async def test_get(self):
         data = {
@@ -232,7 +233,10 @@ class OrganizationServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.organization.list_installations()
+        response = await self.organization.list_installations(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -254,6 +258,7 @@ class OrganizationServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.organization.create_installation(
             '<APP_ID>',
+            authorization_details='<AUTHORIZATION_DETAILS>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -298,6 +303,7 @@ class OrganizationServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.organization.update_installation(
             '<INSTALLATION_ID>',
+            authorization_details='<AUTHORIZATION_DETAILS>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -323,7 +329,11 @@ class OrganizationServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.organization.list_memberships()
+        response = await self.organization.list_memberships(
+            queries=[],
+            search='<SEARCH>',
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -351,6 +361,11 @@ class OrganizationServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.organization.create_membership(
             [],
+            email='email@example.com',
+            user_id='<USER_ID>',
+            phone='+12065550100',
+            url='https://example.com',
+            name='<NAME>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -433,7 +448,11 @@ class OrganizationServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.organization.list_projects()
+        response = await self.organization.list_projects(
+            queries=[],
+            search='<SEARCH>',
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -473,6 +492,7 @@ class OrganizationServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.organization.create_project(
             '<PROJECT_ID>',
             '<NAME>',
+            region='fra',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -579,6 +599,8 @@ class OrganizationServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.organization.list_project_keys(
             '<PROJECT_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -654,6 +676,8 @@ class OrganizationServiceTest(unittest.IsolatedAsyncioTestCase):
             '<KEY_ID>',
             '<NAME>',
             [],
+            expire='2020-10-15T06:38:00.000+00:00',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 

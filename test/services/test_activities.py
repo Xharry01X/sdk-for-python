@@ -28,7 +28,10 @@ class ActivitiesServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.activities.list_events()
+        response = await self.activities.list_events(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock

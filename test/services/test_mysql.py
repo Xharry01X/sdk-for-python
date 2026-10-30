@@ -18,6 +18,7 @@ class MysqlServiceTest(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self):
         await self.client.aclose()
 
+
     @respx.mock
     async def test_list(self):
         data = {
@@ -28,7 +29,10 @@ class MysqlServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.mysql.list()
+        response = await self.mysql.list(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -87,6 +91,18 @@ class MysqlServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.mysql.create(
             '<DATABASE_ID>',
             '<NAME>',
+            version='17',
+            specification='<SPECIFICATION>',
+            replicas=1,
+            sync_mode='async',
+            network_idle_timeout_seconds=1,
+            network_ip_allowlist=[],
+            idle_timeout_minutes=1,
+            pitr=False,
+            pitr_retention_days=1,
+            storage_autoscaling=False,
+            storage_autoscaling_threshold_percent=1,
+            storage_autoscaling_max_gb=1,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -216,6 +232,26 @@ class MysqlServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.mysql.update(
             '<DATABASE_ID>',
+            name='<NAME>',
+            status='ready',
+            specification='<SPECIFICATION>',
+            replicas=1,
+            sync_mode='async',
+            network_idle_timeout_seconds=1,
+            network_ip_allowlist=[],
+            idle_timeout_minutes=1,
+            pitr=False,
+            pitr_retention_days=1,
+            storage_autoscaling=False,
+            storage_autoscaling_threshold_percent=1,
+            storage_autoscaling_max_gb=1,
+            metrics_trace_sample_rate=1.0,
+            metrics_slow_query_log_threshold_ms=1,
+            sql_api_enabled=False,
+            sql_api_allowed_statements=[],
+            sql_api_max_rows=1,
+            sql_api_max_bytes=1,
+            sql_api_timeout_seconds=1,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -243,6 +279,8 @@ class MysqlServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.mysql.list_backups(
             '<DATABASE_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -268,6 +306,7 @@ class MysqlServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.mysql.create_backup(
             '<DATABASE_ID>',
+            type='full',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -283,6 +322,8 @@ class MysqlServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.mysql.list_backup_policies(
             '<DATABASE_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -310,6 +351,8 @@ class MysqlServiceTest(unittest.IsolatedAsyncioTestCase):
             '<NAME>',
             'schedule',
             1,
+            type='full',
+            enabled=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -358,6 +401,10 @@ class MysqlServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.mysql.update_backup_policy(
             '<DATABASE_ID>',
             '<POLICY_ID>',
+            name='<NAME>',
+            schedule='schedule',
+            retention=1,
+            enabled=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -393,6 +440,9 @@ class MysqlServiceTest(unittest.IsolatedAsyncioTestCase):
             '<BUCKET>',
             '<ACCESS_KEY>',
             '<SECRET_KEY>',
+            region='<REGION>',
+            prefix='<PREFIX>',
+            endpoint='https://example.com',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -505,6 +555,8 @@ class MysqlServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.mysql.create_branch(
             '<DATABASE_ID>',
+            branch_id='<BRANCH_ID>',
+            ttl=1,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -605,6 +657,8 @@ class MysqlServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.mysql.create_execution(
             '<DATABASE_ID>',
             '<SQL>',
+            bindings={},
+            timeout_seconds=1,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -663,6 +717,7 @@ class MysqlServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.mysql.create_failover(
             '<DATABASE_ID>',
+            target_replica_id='<TARGET_REPLICA_ID>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -782,6 +837,7 @@ class MysqlServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.mysql.create_migration(
             '<DATABASE_ID>',
             'shared',
+            specification='<SPECIFICATION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -797,6 +853,9 @@ class MysqlServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.mysql.list_operations(
             '<DATABASE_ID>',
+            status='queued',
+            limit=1,
+            offset=1,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -858,6 +917,14 @@ class MysqlServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.mysql.update_pooler(
             '<DATABASE_ID>',
+            mode='transaction',
+            max_connections=1,
+            default_pool_size=1,
+            read_write_splitting=False,
+            pooler_cpu_request='<POOLER_CPU_REQUEST>',
+            pooler_cpu_limit='<POOLER_CPU_LIMIT>',
+            pooler_memory_request='<POOLER_MEMORY_REQUEST>',
+            pooler_memory_limit='<POOLER_MEMORY_LIMIT>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -892,6 +959,10 @@ class MysqlServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.mysql.list_restorations(
             '<DATABASE_ID>',
+            status='pending',
+            type='backup',
+            limit=1,
+            offset=1,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -913,6 +984,13 @@ class MysqlServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.mysql.create_restoration(
             '<DATABASE_ID>',
+            type='backup',
+            backup_id='<BACKUP_ID>',
+            target_database_id='<TARGET_DATABASE_ID>',
+            target_time='2020-10-15T06:38:00.000+00:00',
+            restore_mode='in_place',
+            target_name='<TARGET_NAME>',
+            auto_promote=False,
         )
         self.assertEqual(response.to_dict(), data)
 

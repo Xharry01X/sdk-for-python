@@ -18,6 +18,7 @@ class Oauth2ServiceTest(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self):
         await self.client.aclose()
 
+
     @respx.mock
     async def test_approve(self):
         data = {
@@ -29,6 +30,8 @@ class Oauth2ServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.oauth2.approve(
             '<GRANT_ID>',
+            authorization_details='<AUTHORIZATION_DETAILS>',
+            scope='<SCOPE>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -42,7 +45,22 @@ class Oauth2ServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.oauth2.authorize()
+        response = await self.oauth2.authorize(
+            client_id='<CLIENT_ID>',
+            redirect_uri='https://example.com',
+            response_type='response_type',
+            scope='<SCOPE>',
+            state='<STATE>',
+            nonce='<NONCE>',
+            code_challenge='<CODE_CHALLENGE>',
+            code_challenge_method='s256',
+            prompt='<PROMPT>',
+            max_age=1,
+            authorization_details='<AUTHORIZATION_DETAILS>',
+            resource=[],
+            audience='<AUDIENCE>',
+            request_uri='<REQUEST_URI>',
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -55,7 +73,22 @@ class Oauth2ServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.oauth2.authorize_post()
+        response = await self.oauth2.authorize_post(
+            client_id='<CLIENT_ID>',
+            redirect_uri='https://example.com',
+            response_type='response_type',
+            scope='<SCOPE>',
+            state='<STATE>',
+            nonce='<NONCE>',
+            code_challenge='<CODE_CHALLENGE>',
+            code_challenge_method='s256',
+            prompt='<PROMPT>',
+            max_age=1,
+            authorization_details='<AUTHORIZATION_DETAILS>',
+            resource=[],
+            audience='<AUDIENCE>',
+            request_uri='<REQUEST_URI>',
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -72,7 +105,13 @@ class Oauth2ServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.oauth2.create_device_authorization()
+        response = await self.oauth2.create_device_authorization(
+            client_id='<CLIENT_ID>',
+            scope='<SCOPE>',
+            authorization_details='<AUTHORIZATION_DETAILS>',
+            resource=[],
+            audience='<AUDIENCE>',
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -136,6 +175,9 @@ class Oauth2ServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.oauth2.introspect(
             '<TOKEN>',
+            token_type_hint='access_token',
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -149,7 +191,11 @@ class Oauth2ServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.oauth2.list_organizations()
+        response = await self.oauth2.list_organizations(
+            limit=1,
+            offset=1,
+            search='<SEARCH>',
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -166,6 +212,16 @@ class Oauth2ServiceTest(unittest.IsolatedAsyncioTestCase):
             '<CLIENT_ID>',
             'https://example.com',
             'code',
+            scope='<SCOPE>',
+            state='<STATE>',
+            nonce='<NONCE>',
+            code_challenge='<CODE_CHALLENGE>',
+            code_challenge_method='s256',
+            prompt='<PROMPT>',
+            max_age=1,
+            authorization_details='<AUTHORIZATION_DETAILS>',
+            resource=[],
+            audience='<AUDIENCE>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -179,7 +235,11 @@ class Oauth2ServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.oauth2.list_projects()
+        response = await self.oauth2.list_projects(
+            limit=1,
+            offset=1,
+            search='<SEARCH>',
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -205,6 +265,9 @@ class Oauth2ServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.oauth2.revoke(
             '<TOKEN>',
+            token_type_hint='access_token',
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
         )
         self.assertEqual(response, data)
 
@@ -223,5 +286,14 @@ class Oauth2ServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.oauth2.create_token(
             '<GRANT_TYPE>',
+            code='<CODE>',
+            refresh_token='<REFRESH_TOKEN>',
+            device_code='<DEVICE_CODE>',
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            code_verifier='<CODE_VERIFIER>',
+            redirect_uri='https://example.com',
+            resource=[],
+            audience='<AUDIENCE>',
         )
         self.assertEqual(response.to_dict(), data)

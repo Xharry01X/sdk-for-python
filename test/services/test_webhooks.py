@@ -28,7 +28,10 @@ class WebhooksServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.webhooks.list()
+        response = await self.webhooks.list(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -58,6 +61,12 @@ class WebhooksServiceTest(unittest.IsolatedAsyncioTestCase):
             'https://example.com/webhook',
             '<NAME>',
             [],
+            enabled=False,
+            tls=False,
+            auth_username='<AUTH_USERNAME>',
+            auth_password='password',
+            secret='<SECRET>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -115,6 +124,11 @@ class WebhooksServiceTest(unittest.IsolatedAsyncioTestCase):
             '<NAME>',
             'https://example.com/webhook',
             [],
+            enabled=False,
+            tls=False,
+            auth_username='<AUTH_USERNAME>',
+            auth_password='password',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -154,5 +168,6 @@ class WebhooksServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.webhooks.update_secret(
             '<WEBHOOK_ID>',
+            secret='<SECRET>',
         )
         self.assertEqual(response.to_dict(), data)

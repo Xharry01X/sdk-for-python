@@ -28,7 +28,11 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.tables_db.list()
+        response = await self.tables_db.list(
+            queries=[],
+            search='<SEARCH>',
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -49,6 +53,11 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.tables_db.create(
             '<DATABASE_ID>',
             '<NAME>',
+            enabled=False,
+            description='<DESCRIPTION>',
+            specification='serverless',
+            replicas=1,
+            sync_mode='async',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -75,7 +84,10 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.tables_db.list_transactions()
+        response = await self.tables_db.list_transactions(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -92,7 +104,9 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.tables_db.create_transaction()
+        response = await self.tables_db.create_transaction(
+            ttl=1,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -130,6 +144,8 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.tables_db.update_transaction(
             '<TRANSACTION_ID>',
+            commit=False,
+            rollback=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -161,6 +177,7 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.tables_db.create_operations(
             '<TRANSACTION_ID>',
+            operations=[],
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -201,6 +218,12 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.tables_db.update(
             '<DATABASE_ID>',
+            name='<NAME>',
+            enabled=False,
+            description='<DESCRIPTION>',
+            specification='serverless',
+            replicas=1,
+            sync_mode='async',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -271,6 +294,7 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.tables_db.create_failover(
             '<DATABASE_ID>',
+            target_replica_id='<TARGET_REPLICA_ID>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -317,6 +341,7 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.tables_db.create_migration(
             '<DATABASE_ID>',
             's-1vcpu-1gb',
+            auto_cutover=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -407,6 +432,9 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.tables_db.list_operations(
             '<DATABASE_ID>',
+            status='queued',
+            limit=1,
+            offset=1,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -465,6 +493,9 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.tables_db.list_tables(
             '<DATABASE_ID>',
+            queries=[],
+            search='<SEARCH>',
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -493,6 +524,12 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<NAME>',
+            permissions=[],
+            row_security=False,
+            enabled=False,
+            columns=[],
+            indexes=[],
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -547,6 +584,12 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.tables_db.update_table(
             '<DATABASE_ID>',
             '<TABLE_ID>',
+            name='<NAME>',
+            permissions=[],
+            row_security=False,
+            enabled=False,
+            purge=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -576,6 +619,8 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.tables_db.list_columns(
             '<DATABASE_ID>',
             '<TABLE_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -599,7 +644,12 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
+            min=1,
+            max=1,
+            default=1,
+            array=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -623,8 +673,12 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
             1,
+            min=1,
+            max=1,
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -648,7 +702,10 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
+            default=False,
+            array=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -672,8 +729,10 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
-            True,
+            False,
+            False,
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -698,7 +757,10 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
+            default='2020-10-15T06:38:00.000+00:00',
+            array=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -723,8 +785,10 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
             '2020-10-15T06:38:00.000+00:00',
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -749,7 +813,10 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
+            default='email@example.com',
+            array=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -774,8 +841,10 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
             'email@example.com',
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -802,7 +871,10 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<TABLE_ID>',
             '<KEY>',
             [],
-            True,
+            False,
+            default='active',
+            array=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -829,8 +901,10 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<TABLE_ID>',
             '<KEY>',
             [],
-            True,
+            False,
             'active',
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -854,7 +928,12 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
+            min=1.0,
+            max=1.0,
+            default=1.0,
+            array=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -878,8 +957,12 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
             1.0,
+            min=1.0,
+            max=1.0,
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -903,7 +986,12 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
+            min=1,
+            max=1,
+            default=1,
+            array=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -927,8 +1015,12 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
             1,
+            min=1,
+            max=1,
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -953,7 +1045,10 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
+            default='192.0.2.0',
+            array=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -978,8 +1073,10 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
             '192.0.2.0',
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1003,7 +1100,9 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
+            default=[],
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1027,7 +1126,10 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
+            default=[],
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1051,7 +1153,11 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
+            default='Hello World',
+            array=False,
+            encrypt=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1075,8 +1181,10 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
             'Hello World',
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1100,7 +1208,11 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
+            default='Hello World',
+            array=False,
+            encrypt=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1124,8 +1236,10 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
             'Hello World',
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1149,7 +1263,9 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
+            default=[],
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1173,7 +1289,10 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
+            default=[],
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1197,7 +1316,9 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
+            default=[],
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1221,7 +1342,10 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
+            default=[],
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1252,6 +1376,11 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<TABLE_ID>',
             '<RELATED_TABLE_ID>',
             'oneToOne',
+            two_way=False,
+            key='<KEY>',
+            two_way_key='<TWO_WAY_KEY>',
+            on_delete='cascade',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1281,6 +1410,9 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
+            on_delete='cascade',
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1306,7 +1438,11 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<TABLE_ID>',
             '<KEY>',
             1,
-            True,
+            False,
+            default='Hello World',
+            array=False,
+            encrypt=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1331,8 +1467,11 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
             'Hello World',
+            size=1,
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1356,7 +1495,11 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
+            default='Hello World',
+            array=False,
+            encrypt=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1380,8 +1523,10 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
             'Hello World',
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1406,7 +1551,10 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
+            default='https://example.com',
+            array=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1431,8 +1579,10 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
             'https://example.com',
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1458,7 +1608,11 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<TABLE_ID>',
             '<KEY>',
             1,
-            True,
+            False,
+            default='Hello World',
+            array=False,
+            encrypt=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1483,8 +1637,11 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<KEY>',
-            True,
+            False,
             'Hello World',
+            size=1,
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1538,6 +1695,8 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.tables_db.list_indexes(
             '<DATABASE_ID>',
             '<TABLE_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1565,6 +1724,9 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<KEY>',
             'key',
             [],
+            orders=[],
+            lengths=[],
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1620,6 +1782,10 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.tables_db.list_rows(
             '<DATABASE_ID>',
             '<TABLE_ID>',
+            queries=[],
+            transaction_id='<TRANSACTION_ID>',
+            total=False,
+            ttl=1,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1643,6 +1809,8 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<TABLE_ID>',
             '<ROW_ID>',
             {},
+            permissions=[],
+            transaction_id='<TRANSACTION_ID>',
         )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
@@ -1661,6 +1829,7 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             [],
+            transaction_id='<TRANSACTION_ID>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1678,6 +1847,7 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             [],
+            transaction_id='<TRANSACTION_ID>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1694,6 +1864,9 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.tables_db.update_rows(
             '<DATABASE_ID>',
             '<TABLE_ID>',
+            data={},
+            queries=[],
+            transaction_id='<TRANSACTION_ID>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1710,6 +1883,8 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.tables_db.delete_rows(
             '<DATABASE_ID>',
             '<TABLE_ID>',
+            queries=[],
+            transaction_id='<TRANSACTION_ID>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1726,6 +1901,10 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.tables_db.create_query(
             '<DATABASE_ID>',
             '<TABLE_ID>',
+            queries=[],
+            transaction_id='<TRANSACTION_ID>',
+            total=False,
+            ttl=1,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1748,6 +1927,8 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<ROW_ID>',
+            queries=[],
+            transaction_id='<TRANSACTION_ID>',
         )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
@@ -1771,6 +1952,9 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<ROW_ID>',
+            data={},
+            permissions=[],
+            transaction_id='<TRANSACTION_ID>',
         )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
@@ -1794,6 +1978,9 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<ROW_ID>',
+            data={},
+            permissions=[],
+            transaction_id='<TRANSACTION_ID>',
         )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
@@ -1809,6 +1996,7 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<TABLE_ID>',
             '<ROW_ID>',
+            transaction_id='<TRANSACTION_ID>',
         )
         self.assertEqual(response, data)
 
@@ -1832,6 +2020,9 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<TABLE_ID>',
             '<ROW_ID>',
             '<COLUMN>',
+            value=1.0,
+            min=1.0,
+            transaction_id='<TRANSACTION_ID>',
         )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
@@ -1856,6 +2047,9 @@ class TablesDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<TABLE_ID>',
             '<ROW_ID>',
             '<COLUMN>',
+            value=1.0,
+            max=1.0,
+            transaction_id='<TRANSACTION_ID>',
         )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)

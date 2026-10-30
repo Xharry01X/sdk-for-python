@@ -28,7 +28,10 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.documents_db.list()
+        response = await self.documents_db.list(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -49,6 +52,11 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.documents_db.create(
             '<DATABASE_ID>',
             '<NAME>',
+            enabled=False,
+            description='<DESCRIPTION>',
+            specification='serverless',
+            replicas=1,
+            sync_mode='async',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -75,7 +83,10 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.documents_db.list_transactions()
+        response = await self.documents_db.list_transactions(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -92,7 +103,9 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.documents_db.create_transaction()
+        response = await self.documents_db.create_transaction(
+            ttl=1,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -130,6 +143,8 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.documents_db.update_transaction(
             '<TRANSACTION_ID>',
+            commit=False,
+            rollback=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -161,6 +176,7 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.documents_db.create_operations(
             '<TRANSACTION_ID>',
+            operations=[],
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -202,6 +218,11 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.documents_db.update(
             '<DATABASE_ID>',
             '<NAME>',
+            enabled=False,
+            description='<DESCRIPTION>',
+            specification='serverless',
+            replicas=1,
+            sync_mode='async',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -229,6 +250,9 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.documents_db.list_collections(
             '<DATABASE_ID>',
+            queries=[],
+            search='<SEARCH>',
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -257,6 +281,12 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<NAME>',
+            permissions=[],
+            document_security=False,
+            enabled=False,
+            attributes=[],
+            indexes=[],
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -312,6 +342,11 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<NAME>',
+            permissions=[],
+            document_security=False,
+            enabled=False,
+            purge=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -341,6 +376,10 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.documents_db.list_documents(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
+            queries=[],
+            transaction_id='<TRANSACTION_ID>',
+            total=False,
+            ttl=1,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -364,6 +403,8 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<COLLECTION_ID>',
             '<DOCUMENT_ID>',
             {},
+            permissions=[],
+            transaction_id='<TRANSACTION_ID>',
         )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
@@ -382,6 +423,7 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             [],
+            transaction_id='<TRANSACTION_ID>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -399,6 +441,7 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             [],
+            transaction_id='<TRANSACTION_ID>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -415,6 +458,9 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.documents_db.update_documents(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
+            data={},
+            queries=[],
+            transaction_id='<TRANSACTION_ID>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -431,6 +477,8 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.documents_db.delete_documents(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
+            queries=[],
+            transaction_id='<TRANSACTION_ID>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -447,6 +495,10 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.documents_db.create_query(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
+            queries=[],
+            transaction_id='<TRANSACTION_ID>',
+            total=False,
+            ttl=1,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -469,6 +521,8 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<DOCUMENT_ID>',
+            queries=[],
+            transaction_id='<TRANSACTION_ID>',
         )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
@@ -492,6 +546,9 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<DOCUMENT_ID>',
+            data={},
+            permissions=[],
+            transaction_id='<TRANSACTION_ID>',
         )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
@@ -515,6 +572,9 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<DOCUMENT_ID>',
+            data={},
+            permissions=[],
+            transaction_id='<TRANSACTION_ID>',
         )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
@@ -530,6 +590,7 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<DOCUMENT_ID>',
+            transaction_id='<TRANSACTION_ID>',
         )
         self.assertEqual(response, data)
 
@@ -553,6 +614,9 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<COLLECTION_ID>',
             '<DOCUMENT_ID>',
             '<ATTRIBUTE>',
+            value=1.0,
+            min=1.0,
+            transaction_id='<TRANSACTION_ID>',
         )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
@@ -577,6 +641,9 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<COLLECTION_ID>',
             '<DOCUMENT_ID>',
             '<ATTRIBUTE>',
+            value=1.0,
+            max=1.0,
+            transaction_id='<TRANSACTION_ID>',
         )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
@@ -594,6 +661,8 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.documents_db.list_indexes(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -621,6 +690,9 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             '<KEY>',
             'key',
             [],
+            orders=[],
+            lengths=[],
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -718,6 +790,7 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.documents_db.create_failover(
             '<DATABASE_ID>',
+            target_replica_id='<TARGET_REPLICA_ID>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -733,6 +806,9 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.documents_db.list_operations(
             '<DATABASE_ID>',
+            status='queued',
+            limit=1,
+            offset=1,
         )
         self.assertEqual(response.to_dict(), data)
 

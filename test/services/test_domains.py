@@ -28,7 +28,11 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.domains.list()
+        response = await self.domains.list(
+            queries=[],
+            search='<SEARCH>',
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -73,6 +77,8 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.domains.get_price(
             'example.com',
+            period_years=1,
+            registration_type='new',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -88,6 +94,8 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.domains.list_prices(
             [],
+            period_years=1,
+            registration_type='new',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -150,6 +158,7 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.domains.update_nameservers(
             '<DOMAIN_ID>',
+            nameservers=[],
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -370,6 +379,8 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.domains.list_records(
             '<DOMAIN_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -398,6 +409,7 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
             'name',
             'value',
             1,
+            comment='<COMMENT>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -427,6 +439,7 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
             'name',
             'value',
             1,
+            comment='<COMMENT>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -455,6 +468,7 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
             'name',
             'value',
             1,
+            comment='<COMMENT>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -484,6 +498,7 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
             'name',
             'value',
             1,
+            comment='<COMMENT>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -512,6 +527,7 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
             'name',
             '<VALUE>',
             1,
+            comment='<COMMENT>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -541,6 +557,7 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
             'name',
             '<VALUE>',
             1,
+            comment='<COMMENT>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -569,6 +586,7 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
             'name',
             'value',
             1,
+            comment='<COMMENT>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -598,6 +616,7 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
             'name',
             'value',
             1,
+            comment='<COMMENT>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -626,6 +645,7 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
             'name',
             '<VALUE>',
             1,
+            comment='<COMMENT>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -655,6 +675,7 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
             'name',
             '<VALUE>',
             1,
+            comment='<COMMENT>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -683,6 +704,7 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
             'name',
             '<VALUE>',
             1,
+            comment='<COMMENT>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -712,6 +734,7 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
             'name',
             '<VALUE>',
             1,
+            comment='<COMMENT>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -741,6 +764,7 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
             '<VALUE>',
             1,
             1,
+            comment='<COMMENT>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -771,6 +795,7 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
             '<VALUE>',
             1,
             1,
+            comment='<COMMENT>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -799,6 +824,7 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
             'name',
             '<VALUE>',
             1,
+            comment='<COMMENT>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -828,6 +854,7 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
             'name',
             '<VALUE>',
             1,
+            comment='<COMMENT>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -859,6 +886,7 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
             1,
             1,
             1,
+            comment='<COMMENT>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -891,6 +919,7 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
             1,
             1,
             1,
+            comment='<COMMENT>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -918,6 +947,8 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DOMAIN_ID>',
             'name',
             1,
+            value='<VALUE>',
+            comment='<COMMENT>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -947,6 +978,7 @@ class DomainsServiceTest(unittest.IsolatedAsyncioTestCase):
             'name',
             '<VALUE>',
             1,
+            comment='<COMMENT>',
         )
         self.assertEqual(response.to_dict(), data)
 

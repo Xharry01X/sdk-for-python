@@ -28,7 +28,11 @@ class StorageServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.storage.list_buckets()
+        response = await self.storage.list_buckets(
+            queries=[],
+            search='<SEARCH>',
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -58,6 +62,17 @@ class StorageServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.storage.create_bucket(
             '<BUCKET_ID>',
             '<NAME>',
+            permissions=[],
+            file_security=False,
+            enabled=False,
+            maximum_file_size=1,
+            allowed_file_extensions=[],
+            compression='none',
+            encryption=False,
+            antivirus=False,
+            transformations=False,
+            description='<DESCRIPTION>',
+            strip_metadata=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -117,6 +132,17 @@ class StorageServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.storage.update_bucket(
             '<BUCKET_ID>',
             '<NAME>',
+            permissions=[],
+            file_security=False,
+            enabled=False,
+            maximum_file_size=1,
+            allowed_file_extensions=[],
+            compression='none',
+            encryption=False,
+            antivirus=False,
+            transformations=False,
+            description='<DESCRIPTION>',
+            strip_metadata=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -144,6 +170,9 @@ class StorageServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.storage.list_files(
             '<BUCKET_ID>',
+            queries=[],
+            search='<SEARCH>',
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -175,6 +204,8 @@ class StorageServiceTest(unittest.IsolatedAsyncioTestCase):
             '<BUCKET_ID>',
             '<FILE_ID>',
             InputFile.from_bytes(bytearray(), "example.file"),
+            permissions=[],
+            folder='photos/2026',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -235,6 +266,8 @@ class StorageServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.storage.update_file(
             '<BUCKET_ID>',
             '<FILE_ID>',
+            name='name',
+            permissions=[],
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -261,6 +294,7 @@ class StorageServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.storage.get_file_download(
             '<BUCKET_ID>',
             '<FILE_ID>',
+            token='<TOKEN>',
         )
         self.assertEqual(response, data)
 
@@ -274,6 +308,18 @@ class StorageServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.storage.get_file_preview(
             '<BUCKET_ID>',
             '<FILE_ID>',
+            width=1,
+            height=1,
+            gravity='auto',
+            quality=1,
+            border_width=1,
+            border_color='FFFFFF',
+            border_radius=1,
+            opacity=1.0,
+            rotation=1,
+            background='FFFFFF',
+            output='jpg',
+            token='<TOKEN>',
         )
         self.assertEqual(response, data)
 
@@ -287,5 +333,6 @@ class StorageServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.storage.get_file_view(
             '<BUCKET_ID>',
             '<FILE_ID>',
+            token='<TOKEN>',
         )
         self.assertEqual(response, data)

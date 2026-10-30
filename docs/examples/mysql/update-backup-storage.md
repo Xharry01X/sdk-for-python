@@ -22,7 +22,7 @@ async def main():
         secret_key = '<SECRET_KEY>',
         region = '<REGION>', # optional
         prefix = '<PREFIX>', # optional
-        endpoint = '<ENDPOINT>' # optional
+        endpoint = 'https://example.com' # optional
     )
 
     print(result.model_dump())

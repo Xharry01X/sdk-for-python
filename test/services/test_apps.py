@@ -28,7 +28,10 @@ class AppsServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.apps.list()
+        response = await self.apps.list(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -69,6 +72,22 @@ class AppsServiceTest(unittest.IsolatedAsyncioTestCase):
             '<APP_ID>',
             '<NAME>',
             [],
+            description='<DESCRIPTION>',
+            client_uri='https://example.com',
+            logo_uri='https://example.com',
+            privacy_policy_url='https://example.com',
+            terms_url='https://example.com',
+            contacts=[],
+            tagline='<TAGLINE>',
+            tags=[],
+            images=[],
+            support_url='https://example.com',
+            data_deletion_url='https://example.com',
+            post_logout_redirect_uris=[],
+            enabled=False,
+            type='public',
+            device_flow=False,
+            team_id='<TEAM_ID>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -174,6 +193,24 @@ class AppsServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.apps.update(
             '<APP_ID>',
             '<NAME>',
+            description='<DESCRIPTION>',
+            client_uri='https://example.com',
+            logo_uri='https://example.com',
+            privacy_policy_url='https://example.com',
+            terms_url='https://example.com',
+            contacts=[],
+            tagline='<TAGLINE>',
+            tags=[],
+            images=[],
+            support_url='https://example.com',
+            data_deletion_url='https://example.com',
+            enabled=False,
+            redirect_uris=[],
+            post_logout_redirect_uris=[],
+            type='public',
+            device_flow=False,
+            installation_scopes=[],
+            installation_redirect_url='https://example.com',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -201,6 +238,8 @@ class AppsServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.apps.list_installations(
             '<APP_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -271,6 +310,8 @@ class AppsServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.apps.list_keys(
             '<APP_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -382,6 +423,8 @@ class AppsServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.apps.list_secrets(
             '<APP_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 

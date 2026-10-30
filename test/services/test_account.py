@@ -73,6 +73,7 @@ class AccountServiceTest(unittest.IsolatedAsyncioTestCase):
             '<USER_ID>',
             'email@example.com',
             'password',
+            name='<NAME>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -86,7 +87,10 @@ class AccountServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.account.list_consents()
+        response = await self.account.list_consents(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -136,6 +140,8 @@ class AccountServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.account.list_consent_tokens(
             '<CONSENT_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -217,7 +223,10 @@ class AccountServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.account.list_identities()
+        response = await self.account.list_identities(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -242,7 +251,10 @@ class AccountServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.account.list_memberships()
+        response = await self.account.list_memberships(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -270,7 +282,7 @@ class AccountServiceTest(unittest.IsolatedAsyncioTestCase):
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
         response = await self.account.update_mfa(
-            True,
+            False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -651,7 +663,10 @@ class AccountServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.account.list_passkeys()
+        response = await self.account.list_passkeys(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -667,7 +682,10 @@ class AccountServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.account.create_passkey()
+        response = await self.account.create_passkey(
+            passkey_id='<PASSKEY_ID>',
+            name='<NAME>',
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -764,6 +782,7 @@ class AccountServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.account.update_password(
             'password',
+            old_password='password',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -893,6 +912,7 @@ class AccountServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.account.create_recovery_otp(
             'email@example.com',
+            phrase=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -927,7 +947,9 @@ class AccountServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.account.list_sessions()
+        response = await self.account.list_sessions(
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -937,7 +959,9 @@ class AccountServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.account.delete_sessions()
+        response = await self.account.delete_sessions(
+            current=False,
+        )
         self.assertEqual(response, data)
 
     @respx.mock
@@ -1020,6 +1044,7 @@ class AccountServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.account.create_email_password_session(
             'email@example.com',
             'password',
+            duration=1,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1063,6 +1088,10 @@ class AccountServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.account.create_id_token_session(
             'apple',
             '<ID_TOKEN>',
+            nonce='<NONCE>',
+            access_token='<ACCESS_TOKEN>',
+            access_token_expiry=1,
+            name='<NAME>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1335,6 +1364,7 @@ class AccountServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.account.create_email_token(
             '<USER_ID>',
             'email@example.com',
+            phrase=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1355,6 +1385,8 @@ class AccountServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.account.create_magic_url_token(
             '<USER_ID>',
             'email@example.com',
+            url='https://example.com',
+            phrase=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1367,6 +1399,10 @@ class AccountServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.account.create_o_auth2_token(
             'amazon',
+            success='https://example.com',
+            failure='https://example.com',
+            scopes=[],
+            state='<STATE>',
         )
         self.assertEqual(response, data)
 
@@ -1518,7 +1554,9 @@ class AccountServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.account.create_email_verification_otp()
+        response = await self.account.create_email_verification_otp(
+            phrase=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock

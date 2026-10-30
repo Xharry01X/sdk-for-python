@@ -101,7 +101,7 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.project.update_auth_method(
             'email-password',
-            True,
+            False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -115,7 +115,10 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.list_environments()
+        response = await self.project.list_environments(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -155,6 +158,7 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.project.create_environment(
             '<ENVIRONMENT_ID>',
             '<NAME>',
+            resources=[],
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -259,7 +263,10 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.list_keys()
+        response = await self.project.list_keys(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -331,6 +338,8 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
             '<KEY_ID>',
             '<NAME>',
             [],
+            expire='2020-10-15T06:38:00.000+00:00',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -395,7 +404,10 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.list_mock_phones()
+        response = await self.project.list_mock_phones(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -473,7 +485,10 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.list_o_auth2_providers()
+        response = await self.project.list_o_auth2_providers(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -511,8 +526,22 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
         response = await self.project.update_o_auth2_server(
-            True,
+            False,
             'https://example.com',
+            scopes=[],
+            authorization_details_types=[],
+            access_token_duration=1,
+            refresh_token_duration=1,
+            public_access_token_duration=1,
+            public_refresh_token_duration=1,
+            installation_access_token_duration=1,
+            confidential_pkce=False,
+            verification_url='https://example.com',
+            user_code_length=1,
+            user_code_format='numeric',
+            device_code_duration=1,
+            default_scopes=[],
+            installation_scopes=[],
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -528,7 +557,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_amazon()
+        response = await self.project.update_o_auth2_amazon(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -547,7 +580,15 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_apple()
+        response = await self.project.update_o_auth2_apple(
+            service_id='<SERVICE_ID>',
+            key_id='<KEY_ID>',
+            team_id='<TEAM_ID>',
+            p8_file='<P8_FILE>',
+            enabled=False,
+            native_client_ids=[],
+            native_enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -562,7 +603,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_appwrite()
+        response = await self.project.update_o_auth2_appwrite(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -579,7 +624,13 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_auth0()
+        response = await self.project.update_o_auth2_auth0(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            endpoint='<ENDPOINT>',
+            enabled=False,
+            prompt=[],
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -595,7 +646,12 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_authentik()
+        response = await self.project.update_o_auth2_authentik(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            endpoint='<ENDPOINT>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -610,7 +666,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_autodesk()
+        response = await self.project.update_o_auth2_autodesk(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -625,7 +685,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_bitbucket()
+        response = await self.project.update_o_auth2_bitbucket(
+            key='<KEY>',
+            secret='<SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -640,7 +704,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_bitly()
+        response = await self.project.update_o_auth2_bitly(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -655,7 +723,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_box()
+        response = await self.project.update_o_auth2_box(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -670,7 +742,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_cloudflare()
+        response = await self.project.update_o_auth2_cloudflare(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -685,7 +761,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_dailymotion()
+        response = await self.project.update_o_auth2_dailymotion(
+            api_key='<API_KEY>',
+            api_secret='<API_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -701,7 +781,12 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_discord()
+        response = await self.project.update_o_auth2_discord(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+            prompt=[],
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -716,7 +801,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_disqus()
+        response = await self.project.update_o_auth2_disqus(
+            public_key='<PUBLIC_KEY>',
+            secret_key='<SECRET_KEY>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -731,7 +820,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_dropbox()
+        response = await self.project.update_o_auth2_dropbox(
+            app_key='<APP_KEY>',
+            app_secret='<APP_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -746,7 +839,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_etsy()
+        response = await self.project.update_o_auth2_etsy(
+            key_string='<KEY_STRING>',
+            shared_secret='<SHARED_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -761,7 +858,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_facebook()
+        response = await self.project.update_o_auth2_facebook(
+            app_id='<APP_ID>',
+            app_secret='<APP_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -776,7 +877,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_figma()
+        response = await self.project.update_o_auth2_figma(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -792,7 +897,12 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_fusion_auth()
+        response = await self.project.update_o_auth2_fusion_auth(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            endpoint='<ENDPOINT>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -808,7 +918,12 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_git_hub()
+        response = await self.project.update_o_auth2_git_hub(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+            prompt=[],
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -824,7 +939,12 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_gitlab()
+        response = await self.project.update_o_auth2_gitlab(
+            application_id='<APPLICATION_ID>',
+            secret='<SECRET>',
+            endpoint='https://example.com',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -842,7 +962,14 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_google()
+        response = await self.project.update_o_auth2_google(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            prompt=[],
+            enabled=False,
+            native_client_ids=[],
+            native_enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -857,7 +984,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_hugging_face()
+        response = await self.project.update_o_auth2_hugging_face(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -873,7 +1004,12 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_kakao()
+        response = await self.project.update_o_auth2_kakao(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+            prompt=[],
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -890,7 +1026,13 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_keycloak()
+        response = await self.project.update_o_auth2_keycloak(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            endpoint='<ENDPOINT>',
+            realm_name='<REALM_NAME>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -905,7 +1047,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_kick()
+        response = await self.project.update_o_auth2_kick(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -920,7 +1066,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_linkedin()
+        response = await self.project.update_o_auth2_linkedin(
+            client_id='<CLIENT_ID>',
+            primary_client_secret='<PRIMARY_CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -937,7 +1087,13 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_microsoft()
+        response = await self.project.update_o_auth2_microsoft(
+            application_id='<APPLICATION_ID>',
+            application_secret='<APPLICATION_SECRET>',
+            tenant='<TENANT>',
+            enabled=False,
+            prompt=[],
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -952,7 +1108,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_notion()
+        response = await self.project.update_o_auth2_notion(
+            oauth_client_id='<OAUTH_CLIENT_ID>',
+            oauth_client_secret='<OAUTH_CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -972,7 +1132,17 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_oidc()
+        response = await self.project.update_o_auth2_oidc(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            well_known_url='https://example.com',
+            authorization_url='https://example.com',
+            token_url='https://example.com',
+            user_info_url='https://example.com',
+            prompt=[],
+            max_age=1,
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -990,7 +1160,14 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_okta()
+        response = await self.project.update_o_auth2_okta(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            domain='example.com',
+            authorization_server_id='<AUTHORIZATION_SERVER_ID>',
+            enabled=False,
+            prompt=[],
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1005,7 +1182,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_paypal()
+        response = await self.project.update_o_auth2_paypal(
+            client_id='<CLIENT_ID>',
+            secret_key='<SECRET_KEY>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1020,7 +1201,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_paypal_sandbox()
+        response = await self.project.update_o_auth2_paypal_sandbox(
+            client_id='<CLIENT_ID>',
+            secret_key='<SECRET_KEY>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1035,7 +1220,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_podio()
+        response = await self.project.update_o_auth2_podio(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1050,7 +1239,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_resend()
+        response = await self.project.update_o_auth2_resend(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1066,7 +1259,12 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_salesforce()
+        response = await self.project.update_o_auth2_salesforce(
+            customer_key='<CUSTOMER_KEY>',
+            customer_secret='<CUSTOMER_SECRET>',
+            enabled=False,
+            prompt=[],
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1081,7 +1279,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_slack()
+        response = await self.project.update_o_auth2_slack(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1096,7 +1298,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_spotify()
+        response = await self.project.update_o_auth2_spotify(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1111,7 +1317,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_stripe()
+        response = await self.project.update_o_auth2_stripe(
+            client_id='<CLIENT_ID>',
+            api_secret_key='<API_SECRET_KEY>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1126,7 +1336,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_tik_tok()
+        response = await self.project.update_o_auth2_tik_tok(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1141,7 +1355,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_tradeshift()
+        response = await self.project.update_o_auth2_tradeshift(
+            oauth2_client_id='<OAUTH2_CLIENT_ID>',
+            oauth2_client_secret='<OAUTH2_CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1156,7 +1374,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_tradeshift_sandbox()
+        response = await self.project.update_o_auth2_tradeshift_sandbox(
+            oauth2_client_id='<OAUTH2_CLIENT_ID>',
+            oauth2_client_secret='<OAUTH2_CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1171,7 +1393,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_twitch()
+        response = await self.project.update_o_auth2_twitch(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1186,7 +1412,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_webflow()
+        response = await self.project.update_o_auth2_webflow(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1201,7 +1431,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_word_press()
+        response = await self.project.update_o_auth2_word_press(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1216,7 +1450,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_x()
+        response = await self.project.update_o_auth2_x(
+            customer_key='<CUSTOMER_KEY>',
+            secret_key='<SECRET_KEY>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1231,7 +1469,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_yahoo()
+        response = await self.project.update_o_auth2_yahoo(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1246,7 +1488,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_yandex()
+        response = await self.project.update_o_auth2_yandex(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1262,7 +1508,12 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_zoho()
+        response = await self.project.update_o_auth2_zoho(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+            prompt=[],
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1277,7 +1528,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_o_auth2_zoom()
+        response = await self.project.update_o_auth2_zoom(
+            client_id='<CLIENT_ID>',
+            client_secret='<CLIENT_SECRET>',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1308,7 +1563,10 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.list_platforms()
+        response = await self.project.list_platforms(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1330,6 +1588,7 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
             '<PLATFORM_ID>',
             '<NAME>',
             '<APPLICATION_ID>',
+            fingerprints=[],
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1352,6 +1611,7 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
             '<PLATFORM_ID>',
             '<NAME>',
             '<APPLICATION_ID>',
+            fingerprints=[],
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1564,7 +1824,10 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.list_policies()
+        response = await self.project.list_policies(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1602,7 +1865,7 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
         response = await self.project.update_deny_aliased_email_policy(
-            True,
+            False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1641,7 +1904,7 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
         response = await self.project.update_deny_corporate_email_policy(
-            True,
+            False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1680,7 +1943,7 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
         response = await self.project.update_deny_disposable_email_policy(
-            True,
+            False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1719,7 +1982,46 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
         response = await self.project.update_deny_free_email_policy(
-            True,
+            False,
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_update_deny_realtime_guests_policy(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "name": "New Project",
+            "teamId": "1592981250",
+            "region": "fra",
+            "smtpEnabled": True,
+            "smtpSenderName": "John Appwrite",
+            "smtpSenderEmail": "john@appwrite.io",
+            "smtpReplyToName": "Support Team",
+            "smtpReplyToEmail": "support@appwrite.io",
+            "smtpHost": "mail.appwrite.io",
+            "smtpPort": 25.0,
+            "smtpUsername": "emailuser",
+            "smtpPassword": "smtp-password",
+            "smtpSecure": "tls",
+            "pingCount": 1.0,
+            "pingedAt": "2020-10-15T06:38:00.000+00:00",
+            "labels": [],
+            "status": "active",
+            "onboarding": {},
+            "authMethods": [],
+            "services": [],
+            "protocols": [],
+            "blocks": [],
+            "consoleAccessedAt": "2020-10-15T06:38:00.000+00:00",
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.project.update_deny_realtime_guests_policy(
+            False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1757,7 +2059,14 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_membership_privacy_policy()
+        response = await self.project.update_membership_privacy_policy(
+            user_id=False,
+            user_email=False,
+            user_phone=False,
+            user_name=False,
+            user_mfa=False,
+            user_accessed_at=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1794,7 +2103,12 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_mfa_factors_policy()
+        response = await self.project.update_mfa_factors_policy(
+            totp=False,
+            email=False,
+            phone=False,
+            custom=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -1871,7 +2185,8 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
         response = await self.project.update_password_dictionary_policy(
-            True,
+            False,
+            deny_list=[],
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1949,7 +2264,8 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
         response = await self.project.update_password_personal_data_policy(
-            True,
+            False,
+            deny_list=[],
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1987,7 +2303,11 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_password_pwned_policy()
+        response = await self.project.update_password_pwned_policy(
+            enabled=False,
+            sessions=False,
+            users=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -2024,7 +2344,10 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_password_rotation_policy()
+        response = await self.project.update_password_rotation_policy(
+            enabled=False,
+            max_age=1,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -2041,7 +2364,13 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_password_strength_policy()
+        response = await self.project.update_password_strength_policy(
+            min=1,
+            uppercase=False,
+            lowercase=False,
+            number=False,
+            symbols=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -2079,7 +2408,7 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
         response = await self.project.update_session_alert_policy(
-            True,
+            False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -2157,7 +2486,7 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
         response = await self.project.update_session_invalidation_policy(
-            True,
+            False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -2291,7 +2620,7 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.project.update_protocol(
             'rest',
-            True,
+            False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -2331,9 +2660,19 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.project.update_service(
             'account',
-            True,
+            False,
         )
         self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_delete_sessions(self):
+        data = ''
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.project.delete_sessions()
+        self.assertEqual(response, data)
 
     @respx.mock
     async def test_update_smtp(self):
@@ -2369,7 +2708,18 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.update_smtp()
+        response = await self.project.update_smtp(
+            host='example.com',
+            port=1,
+            username='<USERNAME>',
+            password='password',
+            sender_email='email@example.com',
+            sender_name='<SENDER_NAME>',
+            reply_to_email='email@example.com',
+            reply_to_name='<REPLY_TO_NAME>',
+            secure='tls',
+            enabled=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -2394,7 +2744,10 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.list_email_templates()
+        response = await self.project.list_email_templates(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -2415,6 +2768,13 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.project.update_email_template(
             'verification',
+            locale='af',
+            subject='<SUBJECT>',
+            message='<MESSAGE>',
+            sender_name='<SENDER_NAME>',
+            sender_email='email@example.com',
+            reply_to_email='email@example.com',
+            reply_to_name='<REPLY_TO_NAME>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -2436,6 +2796,7 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.project.get_email_template(
             'verification',
+            locale='af',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -2449,7 +2810,10 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.project.list_variables()
+        response = await self.project.list_variables(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -2473,6 +2837,8 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
             '<VARIABLE_ID>',
             '<KEY>',
             '<VALUE>',
+            secret=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -2517,6 +2883,10 @@ class ProjectServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.project.update_variable(
             '<VARIABLE_ID>',
+            key='<KEY>',
+            value='<VALUE>',
+            secret=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 

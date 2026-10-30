@@ -28,7 +28,11 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.databases.list()
+        response = await self.databases.list(
+            queries=[],
+            search='<SEARCH>',
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -49,6 +53,8 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.databases.create(
             '<DATABASE_ID>',
             '<NAME>',
+            enabled=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -62,7 +68,10 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.databases.list_transactions()
+        response = await self.databases.list_transactions(
+            queries=[],
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -79,7 +88,9 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.databases.create_transaction()
+        response = await self.databases.create_transaction(
+            ttl=1,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -117,6 +128,8 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.databases.update_transaction(
             '<TRANSACTION_ID>',
+            commit=False,
+            rollback=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -148,6 +161,7 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.databases.create_operations(
             '<TRANSACTION_ID>',
+            operations=[],
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -188,6 +202,9 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.databases.update(
             '<DATABASE_ID>',
+            name='<NAME>',
+            enabled=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -215,6 +232,9 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.databases.list_collections(
             '<DATABASE_ID>',
+            queries=[],
+            search='<SEARCH>',
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -243,6 +263,12 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<NAME>',
+            permissions=[],
+            document_security=False,
+            enabled=False,
+            attributes=[],
+            indexes=[],
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -297,6 +323,12 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.databases.update_collection(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
+            name='<NAME>',
+            permissions=[],
+            document_security=False,
+            enabled=False,
+            purge=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -326,6 +358,8 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.databases.list_attributes(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -349,7 +383,12 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
+            min=1,
+            max=1,
+            default=1,
+            array=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -373,8 +412,12 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
             1,
+            min=1,
+            max=1,
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -398,7 +441,10 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
+            default=False,
+            array=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -422,8 +468,10 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
-            True,
+            False,
+            False,
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -448,7 +496,10 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
+            default='2020-10-15T06:38:00.000+00:00',
+            array=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -473,8 +524,10 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
             '2020-10-15T06:38:00.000+00:00',
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -499,7 +552,10 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
+            default='email@example.com',
+            array=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -524,8 +580,10 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
             'email@example.com',
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -552,7 +610,10 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<COLLECTION_ID>',
             '<KEY>',
             [],
-            True,
+            False,
+            default='active',
+            array=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -579,8 +640,10 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<COLLECTION_ID>',
             '<KEY>',
             [],
-            True,
+            False,
             'active',
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -604,7 +667,12 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
+            min=1.0,
+            max=1.0,
+            default=1.0,
+            array=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -628,8 +696,12 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
             1.0,
+            min=1.0,
+            max=1.0,
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -653,7 +725,12 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
+            min=1,
+            max=1,
+            default=1,
+            array=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -677,8 +754,12 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
             1,
+            min=1,
+            max=1,
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -703,7 +784,10 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
+            default='192.0.2.0',
+            array=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -728,8 +812,10 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
             '192.0.2.0',
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -753,7 +839,9 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
+            default=[],
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -777,7 +865,10 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
+            default=[],
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -801,7 +892,11 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
+            default='Hello World',
+            array=False,
+            encrypt=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -825,8 +920,10 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
             'Hello World',
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -850,7 +947,11 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
+            default='Hello World',
+            array=False,
+            encrypt=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -874,8 +975,10 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
             'Hello World',
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -899,7 +1002,9 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
+            default=[],
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -923,7 +1028,10 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
+            default=[],
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -947,7 +1055,9 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
+            default=[],
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -971,7 +1081,10 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
+            default=[],
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1002,6 +1115,11 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<COLLECTION_ID>',
             '<RELATED_COLLECTION_ID>',
             'oneToOne',
+            two_way=False,
+            key='<KEY>',
+            two_way_key='<TWO_WAY_KEY>',
+            on_delete='cascade',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1031,6 +1149,9 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
+            on_delete='cascade',
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1056,7 +1177,11 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<COLLECTION_ID>',
             '<KEY>',
             1,
-            True,
+            False,
+            default='Hello World',
+            array=False,
+            encrypt=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1081,8 +1206,11 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
             'Hello World',
+            size=1,
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1106,7 +1234,11 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
+            default='Hello World',
+            array=False,
+            encrypt=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1130,8 +1262,10 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
             'Hello World',
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1156,7 +1290,10 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
+            default='https://example.com',
+            array=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1181,8 +1318,10 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
             'https://example.com',
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1208,7 +1347,11 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<COLLECTION_ID>',
             '<KEY>',
             1,
-            True,
+            False,
+            default='Hello World',
+            array=False,
+            encrypt=False,
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1233,8 +1376,11 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
-            True,
+            False,
             'Hello World',
+            size=1,
+            new_key='<NEW_KEY>',
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1288,6 +1434,10 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.databases.list_documents(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
+            queries=[],
+            transaction_id='<TRANSACTION_ID>',
+            total=False,
+            ttl=1,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1311,6 +1461,8 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<COLLECTION_ID>',
             '<DOCUMENT_ID>',
             {},
+            permissions=[],
+            transaction_id='<TRANSACTION_ID>',
         )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
@@ -1329,6 +1481,7 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             [],
+            transaction_id='<TRANSACTION_ID>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1346,6 +1499,7 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             [],
+            transaction_id='<TRANSACTION_ID>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1362,6 +1516,9 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.databases.update_documents(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
+            data={},
+            queries=[],
+            transaction_id='<TRANSACTION_ID>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1378,6 +1535,8 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.databases.delete_documents(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
+            queries=[],
+            transaction_id='<TRANSACTION_ID>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1394,6 +1553,10 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.databases.create_query(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
+            queries=[],
+            transaction_id='<TRANSACTION_ID>',
+            total=False,
+            ttl=1,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1416,6 +1579,8 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<DOCUMENT_ID>',
+            queries=[],
+            transaction_id='<TRANSACTION_ID>',
         )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
@@ -1439,6 +1604,9 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<DOCUMENT_ID>',
+            data={},
+            permissions=[],
+            transaction_id='<TRANSACTION_ID>',
         )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
@@ -1462,6 +1630,9 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<DOCUMENT_ID>',
+            data={},
+            permissions=[],
+            transaction_id='<TRANSACTION_ID>',
         )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
@@ -1477,6 +1648,7 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<DOCUMENT_ID>',
+            transaction_id='<TRANSACTION_ID>',
         )
         self.assertEqual(response, data)
 
@@ -1500,6 +1672,9 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<COLLECTION_ID>',
             '<DOCUMENT_ID>',
             '<ATTRIBUTE>',
+            value=1.0,
+            min=1.0,
+            transaction_id='<TRANSACTION_ID>',
         )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
@@ -1524,6 +1699,9 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<COLLECTION_ID>',
             '<DOCUMENT_ID>',
             '<ATTRIBUTE>',
+            value=1.0,
+            max=1.0,
+            transaction_id='<TRANSACTION_ID>',
         )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
@@ -1541,6 +1719,8 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.databases.list_indexes(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1568,6 +1748,9 @@ class DatabasesServiceTest(unittest.IsolatedAsyncioTestCase):
             '<KEY>',
             'key',
             [],
+            orders=[],
+            lengths=[],
+            description='<DESCRIPTION>',
         )
         self.assertEqual(response.to_dict(), data)
 

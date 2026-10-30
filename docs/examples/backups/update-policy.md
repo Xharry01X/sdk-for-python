@@ -18,7 +18,7 @@ async def main():
         policy_id = '<POLICY_ID>',
         name = '<NAME>', # optional
         retention = 1, # optional
-        schedule = '', # optional
+        schedule = None, # optional
         enabled = False # optional
     )
 

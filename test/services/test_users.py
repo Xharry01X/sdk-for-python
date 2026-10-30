@@ -28,7 +28,11 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.users.list()
+        response = await self.users.list(
+            queries=[],
+            search='<SEARCH>',
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -57,6 +61,10 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.users.create(
             '<USER_ID>',
+            email='email@example.com',
+            phone='+12065550100',
+            password='password',
+            name='<NAME>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -87,7 +95,8 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.users.create_argon2_user(
             '<USER_ID>',
             'email@example.com',
-            'password',
+            '$argon2id$v=19$m=65536,t=4,p=1$NC8xaW1CVXlIZXFSQi9FRg$0bd4pLo1ytyqvCwl5NSijpm5OIe8J6CjZ1vFemKAg+o',
+            name='<NAME>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -118,7 +127,8 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.users.create_bcrypt_user(
             '<USER_ID>',
             'email@example.com',
-            'password',
+            '$2y$10$vBiMe4NOvlbYL1iJUNdqkO.QJy17fvslZQ5oiqKq1G4uwyRWvdrXC',
+            name='<NAME>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -132,7 +142,11 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.users.list_identities()
+        response = await self.users.list_identities(
+            queries=[],
+            search='<SEARCH>',
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -175,6 +189,7 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
             '<USER_ID>',
             'email@example.com',
             'password',
+            name='<NAME>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -205,7 +220,8 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.users.create_ph_pass_user(
             '<USER_ID>',
             'email@example.com',
-            'password',
+            '$P$BrOEFP1YR5W1yHpvvGuoeVUDPmw9ra/',
+            name='<NAME>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -242,6 +258,7 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
             1,
             1,
             1,
+            name='<NAME>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -276,6 +293,7 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
             '<PASSWORD_SALT>',
             '<PASSWORD_SALT_SEPARATOR>',
             '<PASSWORD_SIGNER_KEY>',
+            name='<NAME>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -307,6 +325,8 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
             '<USER_ID>',
             'email@example.com',
             'password',
+            password_version='sha1',
+            name='<NAME>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -407,7 +427,7 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.users.update_impersonator(
             '<USER_ID>',
-            True,
+            False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -422,6 +442,8 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.users.create_jwt(
             '<USER_ID>',
+            session_id='recent()',
+            duration=1,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -467,6 +489,9 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.users.list_memberships(
             '<USER_ID>',
+            queries=[],
+            search='<SEARCH>',
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -496,7 +521,7 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.users.update_mfa(
             '<USER_ID>',
-            True,
+            False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -526,7 +551,7 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.users.update_mfa(
             '<USER_ID>',
-            True,
+            False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -737,6 +762,8 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.users.list_passkeys(
             '<USER_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -889,6 +916,7 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.users.list_sessions(
             '<USER_ID>',
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -985,7 +1013,7 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.users.update_status(
             '<USER_ID>',
-            True,
+            False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1001,6 +1029,8 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.users.list_targets(
             '<USER_ID>',
+            queries=[],
+            total=False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1025,6 +1055,8 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
             '<TARGET_ID>',
             'email',
             '<IDENTIFIER>',
+            provider_id='<PROVIDER_ID>',
+            name='<NAME>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1069,6 +1101,9 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
         response = await self.users.update_target(
             '<USER_ID>',
             '<TARGET_ID>',
+            identifier='<IDENTIFIER>',
+            provider_id='<PROVIDER_ID>',
+            name='<NAME>',
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1101,6 +1136,8 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.users.create_token(
             '<USER_ID>',
+            length=1,
+            expire=1,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1130,7 +1167,7 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.users.update_email_verification(
             '<USER_ID>',
-            True,
+            False,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -1160,6 +1197,6 @@ class UsersServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.users.update_phone_verification(
             '<USER_ID>',
-            True,
+            False,
         )
         self.assertEqual(response.to_dict(), data)

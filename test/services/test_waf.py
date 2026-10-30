@@ -28,7 +28,11 @@ class WafServiceTest(unittest.IsolatedAsyncioTestCase):
         respx.route().mock(
             return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
         )
-        response = await self.waf.list_rules()
+        response = await self.waf.list_rules(
+            queries=[],
+            search='<SEARCH>',
+            total=False,
+        )
         self.assertEqual(response.to_dict(), data)
 
     @respx.mock
@@ -57,6 +61,11 @@ class WafServiceTest(unittest.IsolatedAsyncioTestCase):
             '<RULE_ID>',
             'api',
             '<NAME>',
+            resource_id='<RESOURCE_ID>',
+            description='<DESCRIPTION>',
+            priority=1,
+            enabled=False,
+            conditions=[],
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -84,6 +93,13 @@ class WafServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.waf.update_bypass_rule(
             '<RULE_ID>',
+            resource_type='api',
+            resource_id='<RESOURCE_ID>',
+            name='<NAME>',
+            description='<DESCRIPTION>',
+            priority=1,
+            enabled=False,
+            conditions=[],
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -116,6 +132,14 @@ class WafServiceTest(unittest.IsolatedAsyncioTestCase):
             '<RULE_ID>',
             'api',
             '<NAME>',
+            resource_id='<RESOURCE_ID>',
+            description='<DESCRIPTION>',
+            challenge_type='compute',
+            priority=1,
+            enabled=False,
+            conditions=[],
+            difficulty=1,
+            ttl=1,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -146,6 +170,16 @@ class WafServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.waf.update_challenge_rule(
             '<RULE_ID>',
+            resource_type='api',
+            resource_id='<RESOURCE_ID>',
+            name='<NAME>',
+            description='<DESCRIPTION>',
+            challenge_type='compute',
+            priority=1,
+            enabled=False,
+            conditions=[],
+            difficulty=1,
+            ttl=1,
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -175,6 +209,11 @@ class WafServiceTest(unittest.IsolatedAsyncioTestCase):
             '<RULE_ID>',
             'api',
             '<NAME>',
+            resource_id='<RESOURCE_ID>',
+            description='<DESCRIPTION>',
+            priority=1,
+            enabled=False,
+            conditions=[],
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -202,6 +241,13 @@ class WafServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.waf.update_deny_rule(
             '<RULE_ID>',
+            resource_type='api',
+            resource_id='<RESOURCE_ID>',
+            name='<NAME>',
+            description='<DESCRIPTION>',
+            priority=1,
+            enabled=False,
+            conditions=[],
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -238,6 +284,14 @@ class WafServiceTest(unittest.IsolatedAsyncioTestCase):
             '<NAME>',
             1,
             1,
+            resource_id='<RESOURCE_ID>',
+            description='<DESCRIPTION>',
+            key='ip',
+            strategy='fixedWindow',
+            max_bucket_size=1,
+            priority=1,
+            enabled=False,
+            conditions=[],
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -270,6 +324,17 @@ class WafServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.waf.update_rate_limit_rule(
             '<RULE_ID>',
+            resource_type='api',
+            resource_id='<RESOURCE_ID>',
+            name='<NAME>',
+            description='<DESCRIPTION>',
+            limit=1,
+            interval=1,
+            key='ip',
+            max_bucket_size=1,
+            priority=1,
+            enabled=False,
+            conditions=[],
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -303,6 +368,11 @@ class WafServiceTest(unittest.IsolatedAsyncioTestCase):
             '<NAME>',
             '<LOCATION>',
             1,
+            resource_id='<RESOURCE_ID>',
+            description='<DESCRIPTION>',
+            priority=1,
+            enabled=False,
+            conditions=[],
         )
         self.assertEqual(response.to_dict(), data)
 
@@ -332,6 +402,15 @@ class WafServiceTest(unittest.IsolatedAsyncioTestCase):
         )
         response = await self.waf.update_redirect_rule(
             '<RULE_ID>',
+            resource_type='api',
+            resource_id='<RESOURCE_ID>',
+            name='<NAME>',
+            description='<DESCRIPTION>',
+            location='<LOCATION>',
+            status_code=1,
+            priority=1,
+            enabled=False,
+            conditions=[],
         )
         self.assertEqual(response.to_dict(), data)
 

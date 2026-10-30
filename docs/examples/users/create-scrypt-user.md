@@ -20,7 +20,7 @@ async def main():
         password = 'password',
         password_salt = '<PASSWORD_SALT>',
         password_cpu = 8,
-        password_memory = 65536,
+        password_memory = 14,
         password_parallel = 1,
         password_length = 64,
         name = '<NAME>' # optional
