@@ -92,6 +92,43 @@ POST_SYNC_FIXES = {
             "        # the replaced client is parked here and closed together with the\n"
             "        # active one once close() runs."
         ),
+        # Sync mode uploads the remaining chunks sequentially, so the lock
+        # that serializes the async progress callbacks is not needed.
+        "        # The callbacks are serialized so that they never overlap and always\n"
+        "        # report the latest state of the upload.\n"
+        "        progress_lock = anyio.Lock()\n": "",
+        "                with progress_lock:\n"
+        "                    completed_count = completed_count + 1\n"
+        "                    uploaded_size = uploaded_size + (chunk['end'] - chunk['start'])\n"
+        "                    last_result = chunk_result\n"
+        "                    if is_upload_complete(chunk_result):\n"
+        "                        final_result = chunk_result\n"
+        "                    self._report_progress(\n"
+        "                        on_progress,\n"
+        "                        {\n"
+        "                            \"$id\": upload_id_header,\n"
+        "                            \"progress\": uploaded_size / size * 100,\n"
+        "                            \"sizeUploaded\": uploaded_size,\n"
+        "                            \"chunksTotal\": total_chunks,\n"
+        "                            \"chunksUploaded\": completed_count,\n"
+        "                        },\n"
+        "                    )": (
+            "                completed_count = completed_count + 1\n"
+            "                uploaded_size = uploaded_size + (chunk['end'] - chunk['start'])\n"
+            "                last_result = chunk_result\n"
+            "                if is_upload_complete(chunk_result):\n"
+            "                    final_result = chunk_result\n"
+            "                self._report_progress(\n"
+            "                    on_progress,\n"
+            "                    {\n"
+            "                        \"$id\": upload_id_header,\n"
+            "                        \"progress\": uploaded_size / size * 100,\n"
+            "                        \"sizeUploaded\": uploaded_size,\n"
+            "                        \"chunksTotal\": total_chunks,\n"
+            "                        \"chunksUploaded\": completed_count,\n"
+            "                    },\n"
+            "                )"
+        ),
     },
     # unasync also rewrites string literals whose *entire* content matches a
     # replacement key, which would corrupt values sent to the server; these

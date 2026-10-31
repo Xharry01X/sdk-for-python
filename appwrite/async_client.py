@@ -310,7 +310,8 @@ class AsyncClient:
             try:
                 result = await self.call('get', path + '/' + quote(upload_id, safe="!*'()"), headers)
                 counter = result['chunksUploaded']
-            except:
+            except Exception:
+                # A cancellation is a BaseException and must not be swallowed here.
                 pass
 
         if counter > 0:
@@ -343,6 +344,9 @@ class AsyncClient:
         upload_id_header = upload_id
         completed_count = chunks[0]['index']
         uploaded_size = chunks[0]['start']
+        # The callbacks are serialized so that they never overlap and always
+        # report the latest state of the upload.
+        progress_lock = anyio.Lock()
         last_result = None
         final_result = None
 
@@ -406,21 +410,22 @@ class AsyncClient:
             try:
                 async with semaphore:
                     chunk_result = await upload_chunk(chunk, upload_id_header)
-                completed_count = completed_count + 1
-                uploaded_size = uploaded_size + (chunk['end'] - chunk['start'])
-                last_result = chunk_result
-                if is_upload_complete(chunk_result):
-                    final_result = chunk_result
-                await self._report_progress(
-                    on_progress,
-                    {
-                        "$id": upload_id_header,
-                        "progress": uploaded_size / size * 100,
-                        "sizeUploaded": uploaded_size,
-                        "chunksTotal": total_chunks,
-                        "chunksUploaded": completed_count,
-                    },
-                )
+                async with progress_lock:
+                    completed_count = completed_count + 1
+                    uploaded_size = uploaded_size + (chunk['end'] - chunk['start'])
+                    last_result = chunk_result
+                    if is_upload_complete(chunk_result):
+                        final_result = chunk_result
+                    await self._report_progress(
+                        on_progress,
+                        {
+                            "$id": upload_id_header,
+                            "progress": uploaded_size / size * 100,
+                            "sizeUploaded": uploaded_size,
+                            "chunksTotal": total_chunks,
+                            "chunksUploaded": completed_count,
+                        },
+                    )
             except BaseException as exc:
                 failures.append(exc)
                 return
