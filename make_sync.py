@@ -1,18 +1,18 @@
 #!/usr/bin/env python
-"""Generate the synchronous mirror of the async-first Appwrite SDK.
+"""Generate the synchronous mirror of the asynchronous Appwrite SDK.
 
-The ``appwrite`` package is async by default (``httpx2.AsyncClient`` +
-``anyio``) and is the canonical source of truth: edit it, never the
-generated mirror. Run ``python make_sync.py`` from the repository root to
-(re)generate the sync mirror ``appwrite_sync`` + ``test_sync`` from
-``appwrite`` + ``test``: every ``*.py`` file is run through
-`unasync <https://github.com/python-trio/unasync>`_, which strips
-``async``/``await`` and applies whole-token renames such as
-``AsyncClient`` -> ``Client`` and ``appwrite`` -> ``appwrite_sync``. A
-handful of plain textual fixes are then applied to the generated files
-for the spots unasync cannot restructure (the anyio semaphore and task
-group in the chunked uploader, thread offloading, sync-incompatible
-concurrency tests).
+The ``appwrite`` package ships a synchronous client (the default) next to an
+asynchronous one (``appwrite.async_client`` and ``appwrite.async_services``).
+This script mirrors the asynchronous tree into ``appwrite_sync`` + ``test_sync``
+so the async sources have a plain-function counterpart: every ``*.py`` file is
+run through `unasync <https://github.com/python-trio/unasync>`_, which strips
+``async``/``await`` and applies whole-token renames such as ``AsyncClient`` ->
+``Client`` and ``appwrite`` -> ``appwrite_sync``. The ``Async*`` services are
+renamed to their plain names from the class names the async services declare,
+so ``AsyncUsers`` becomes ``Users`` and not ``SyncUsers``. A handful of plain
+textual fixes are then applied to the generated files for the spots unasync
+cannot restructure (the anyio semaphore and task group in the chunked uploader,
+thread offloading, sync-incompatible concurrency tests).
 
 The generated trees are disposable output and are gitignored.
 
@@ -20,6 +20,7 @@ Requires: ``pip install unasync``
 """
 
 import os
+import re
 import shutil
 
 import unasync
@@ -28,6 +29,8 @@ import unasync
 # (async def/await/async with/async for are rewritten automatically).
 ADDITIONAL_REPLACEMENTS = {
     "appwrite": "appwrite_sync",
+    "async_client": "client",
+    "async_services": "services",
     "aclose": "close",
     "__aenter__": "__enter__",
     "__aexit__": "__exit__",
@@ -36,6 +39,10 @@ ADDITIONAL_REPLACEMENTS = {
     "asyncSetUp": "setUp",
     "asyncTearDown": "tearDown",
 }
+
+# The default synchronous SDK is not mirrored: it is generated on its own and
+# ships in the `appwrite` package.
+NOT_MIRRORED = ("client.py", "services")
 
 # unasync rewrites tokens, but it cannot restructure code. These plain
 # str.replace fixes are applied to the *generated* files after rendering.
@@ -98,7 +105,7 @@ POST_SYNC_FIXES = {
     "appwrite_sync/models/organization.py": {
         "data['platform'] = 'appwrite_sync'": "data['platform'] = 'appwrite'",
     },
-    "test_sync/test_async_client.py": {
+    "test_sync/test_client.py": {
         # Concurrency cannot be asserted in a sync mirror: drop the
         # asyncio.gather()-based test, then redirect the remaining
         # asyncio.sleep() calls in handlers to time.sleep().
@@ -182,15 +189,49 @@ POST_SYNC_FIXES = {
 # The generated mirror must be fully synchronous.
 ASYNC_REMNANTS = ("anyio", "asyncio", "await ", "async def", "aclose")
 
+# The async services declare the class name the mirror has to use.
+SERVICE_CLASS = re.compile(r"^class (Async[A-Za-z0-9_]+)\(Service\):", re.MULTILINE)
+
+
+def service_replacements(repo_root):
+    """The token renames for the async services, taken from the classes they declare."""
+    replacements = {}
+    services_dir = os.path.join(repo_root, "appwrite", "async_services")
+
+    for filename in sorted(os.listdir(services_dir)):
+        if not filename.endswith(".py") or filename == "__init__.py":
+            continue
+
+        with open(os.path.join(services_dir, filename), "r", encoding="utf-8") as f:
+            match = SERVICE_CLASS.search(f.read())
+
+        if match is None:
+            raise SystemExit(f"no async service class found in {filename}")
+
+        name = match.group(1)
+        plain = name[len("Async") :]
+        replacements[name] = plain
+        replacements[f"{name}ServiceTest"] = f"{plain}ServiceTest"
+
+    return replacements
+
 
 def collect_source_files(repo_root):
     filepaths = []
-    for source_dir in ("appwrite", "test"):
+    for source_dir in ("appwrite", "test_async"):
         for root, dirs, files in os.walk(os.path.join(repo_root, source_dir)):
             dirs[:] = [d for d in dirs if d != "__pycache__"]
             for filename in files:
-                if filename.endswith(".py"):
-                    filepaths.append(os.path.join(root, filename))
+                if not filename.endswith(".py"):
+                    continue
+
+                path = os.path.join(root, filename)
+                relative = os.path.relpath(path, repo_root)
+                parts = relative.split(os.sep)
+                if parts[0] == "appwrite" and parts[1] in NOT_MIRRORED:
+                    continue
+
+                filepaths.append(path)
     return filepaths
 
 
@@ -227,16 +268,29 @@ def assert_no_async_remnants(repo_root):
 def main():
     repo_root = os.path.dirname(os.path.abspath(__file__))
 
+    replacements = dict(ADDITIONAL_REPLACEMENTS)
+    replacements.update(service_replacements(repo_root))
+
     rules = [
+        unasync.Rule(
+            fromdir="/appwrite/async_client.py",
+            todir="/appwrite_sync/client.py",
+            additional_replacements=replacements,
+        ),
+        unasync.Rule(
+            fromdir="/appwrite/async_services/",
+            todir="/appwrite_sync/services/",
+            additional_replacements=replacements,
+        ),
         unasync.Rule(
             fromdir="/appwrite/",
             todir="/appwrite_sync/",
-            additional_replacements=ADDITIONAL_REPLACEMENTS,
+            additional_replacements=replacements,
         ),
         unasync.Rule(
-            fromdir="/test/",
+            fromdir="/test_async/",
             todir="/test_sync/",
-            additional_replacements=ADDITIONAL_REPLACEMENTS,
+            additional_replacements=replacements,
         ),
     ]
 
