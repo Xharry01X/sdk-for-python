@@ -1,7 +1,8 @@
 import json
-import httpx2
-import respx
+import re
+import requests_mock
 import unittest
+from urllib.parse import parse_qs, unquote, urlsplit
 
 from appwrite.client import Client
 from appwrite.input_file import InputFile
@@ -9,27 +10,41 @@ from appwrite.models import *
 from appwrite.services.embeddings import Embeddings
 
 
-class EmbeddingsServiceTest(unittest.IsolatedAsyncioTestCase):
+class EmbeddingsServiceTest(unittest.TestCase):
 
-    async def asyncSetUp(self):
+    def setUp(self):
         self.client = Client()
         self.embeddings = Embeddings(self.client)
 
-    async def asyncTearDown(self):
-        await self.client.aclose()
-
-    @respx.mock
-    async def test_create_text_embeddings(self):
+    @requests_mock.Mocker()
+    def test_create_text_embeddings(self, m):
         data = {
             "total": 5.0,
             "embeddings": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.embeddings.create_text_embeddings(
+        response = self.embeddings.create_text_embeddings(
             [],
             model='nomic-embed-text',
+        )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/embeddings/text',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'texts': [],
+                'model': 'nomic-embed-text',
+            },
         )
         self.assertEqual(response.to_dict(), data)

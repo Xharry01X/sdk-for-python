@@ -1,7 +1,8 @@
 import json
-import httpx2
-import respx
+import re
+import requests_mock
 import unittest
+from urllib.parse import parse_qs, unquote, urlsplit
 
 from appwrite.client import Client
 from appwrite.input_file import InputFile
@@ -9,34 +10,48 @@ from appwrite.models import *
 from appwrite.services.teams import Teams
 
 
-class TeamsServiceTest(unittest.IsolatedAsyncioTestCase):
+class TeamsServiceTest(unittest.TestCase):
 
-    async def asyncSetUp(self):
+    def setUp(self):
         self.client = Client()
         self.teams = Teams(self.client)
 
-    async def asyncTearDown(self):
-        await self.client.aclose()
-
-    @respx.mock
-    async def test_list(self):
+    @requests_mock.Mocker()
+    def test_list(self, m):
         data = {
             "total": 5.0,
             "teams": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.teams.list(
+        response = self.teams.list(
             queries=[],
             search='<SEARCH>',
             total=False,
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/teams',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(
+            sent,
+            {
+                'search': ['<SEARCH>'],
+                'total': ['false'],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_create(self):
+    @requests_mock.Mocker()
+    def test_create(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -46,18 +61,36 @@ class TeamsServiceTest(unittest.IsolatedAsyncioTestCase):
             "prefs": {},
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.teams.create(
+        response = self.teams.create(
             '<TEAM_ID>',
             '<NAME>',
             roles=[],
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/teams',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'teamId': '<TEAM_ID>',
+                'name': '<NAME>',
+                'roles': [],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_get(self):
+    @requests_mock.Mocker()
+    def test_get(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -67,16 +100,27 @@ class TeamsServiceTest(unittest.IsolatedAsyncioTestCase):
             "prefs": {},
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.teams.get(
+        response = self.teams.get(
             '<TEAM_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/teams/<TEAM_ID>',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_update_name(self):
+    @requests_mock.Mocker()
+    def test_update_name(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -86,46 +130,89 @@ class TeamsServiceTest(unittest.IsolatedAsyncioTestCase):
             "prefs": {},
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PUT',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.teams.update_name(
+        response = self.teams.update_name(
             '<TEAM_ID>',
             '<NAME>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/teams/<TEAM_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'name': '<NAME>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_delete(self):
+    @requests_mock.Mocker()
+    def test_delete(self, m):
         data = ''
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'DELETE',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.teams.delete(
+        response = self.teams.delete(
             '<TEAM_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/teams/<TEAM_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(sent, {})
         self.assertEqual(response, data)
 
-    @respx.mock
-    async def test_list_installations(self):
+    @requests_mock.Mocker()
+    def test_list_installations(self, m):
         data = {
             "total": 5.0,
             "installations": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.teams.list_installations(
+        response = self.teams.list_installations(
             '<TEAM_ID>',
             queries=[],
             total=False,
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/teams/<TEAM_ID>/installations',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(
+            sent,
+            {
+                'total': ['false'],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_create_installation(self):
+    @requests_mock.Mocker()
+    def test_create_installation(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -138,18 +225,35 @@ class TeamsServiceTest(unittest.IsolatedAsyncioTestCase):
             "createdByName": "Walter White",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.teams.create_installation(
+        response = self.teams.create_installation(
             '<TEAM_ID>',
             '<APP_ID>',
             authorization_details='<AUTHORIZATION_DETAILS>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/teams/<TEAM_ID>/installations',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'appId': '<APP_ID>',
+                'authorizationDetails': '<AUTHORIZATION_DETAILS>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_get_installation(self):
+    @requests_mock.Mocker()
+    def test_get_installation(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -162,17 +266,28 @@ class TeamsServiceTest(unittest.IsolatedAsyncioTestCase):
             "createdByName": "Walter White",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.teams.get_installation(
+        response = self.teams.get_installation(
             '<TEAM_ID>',
             '<INSTALLATION_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/teams/<TEAM_ID>/installations/<INSTALLATION_ID>',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_update_installation(self):
+    @requests_mock.Mocker()
+    def test_update_installation(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -185,49 +300,93 @@ class TeamsServiceTest(unittest.IsolatedAsyncioTestCase):
             "createdByName": "Walter White",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PUT',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.teams.update_installation(
+        response = self.teams.update_installation(
             '<TEAM_ID>',
             '<INSTALLATION_ID>',
             authorization_details='<AUTHORIZATION_DETAILS>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/teams/<TEAM_ID>/installations/<INSTALLATION_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'authorizationDetails': '<AUTHORIZATION_DETAILS>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_delete_installation(self):
+    @requests_mock.Mocker()
+    def test_delete_installation(self, m):
         data = ''
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'DELETE',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.teams.delete_installation(
+        response = self.teams.delete_installation(
             '<TEAM_ID>',
             '<INSTALLATION_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/teams/<TEAM_ID>/installations/<INSTALLATION_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(sent, {})
         self.assertEqual(response, data)
 
-    @respx.mock
-    async def test_list_memberships(self):
+    @requests_mock.Mocker()
+    def test_list_memberships(self, m):
         data = {
             "total": 5.0,
             "memberships": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.teams.list_memberships(
+        response = self.teams.list_memberships(
             '<TEAM_ID>',
             queries=[],
             search='<SEARCH>',
             total=False,
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/teams/<TEAM_ID>/memberships',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(
+            sent,
+            {
+                'search': ['<SEARCH>'],
+                'total': ['false'],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_create_membership(self):
+    @requests_mock.Mocker()
+    def test_create_membership(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -246,10 +405,13 @@ class TeamsServiceTest(unittest.IsolatedAsyncioTestCase):
             "roles": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.teams.create_membership(
+        response = self.teams.create_membership(
             '<TEAM_ID>',
             [],
             email='email@example.com',
@@ -259,10 +421,29 @@ class TeamsServiceTest(unittest.IsolatedAsyncioTestCase):
             name='<NAME>',
             membership_id='<MEMBERSHIP_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/teams/<TEAM_ID>/memberships',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'email': 'email@example.com',
+                'userId': '<USER_ID>',
+                'phone': '+12065550100',
+                'roles': [],
+                'url': 'https://example.com',
+                'name': '<NAME>',
+                'membershipId': '<MEMBERSHIP_ID>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_get_membership(self):
+    @requests_mock.Mocker()
+    def test_get_membership(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -281,17 +462,28 @@ class TeamsServiceTest(unittest.IsolatedAsyncioTestCase):
             "roles": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.teams.get_membership(
+        response = self.teams.get_membership(
             '<TEAM_ID>',
             '<MEMBERSHIP_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/teams/<TEAM_ID>/memberships/<MEMBERSHIP_ID>',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_update_membership(self):
+    @requests_mock.Mocker()
+    def test_update_membership(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -310,31 +502,58 @@ class TeamsServiceTest(unittest.IsolatedAsyncioTestCase):
             "roles": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PATCH',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.teams.update_membership(
+        response = self.teams.update_membership(
             '<TEAM_ID>',
             '<MEMBERSHIP_ID>',
             [],
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/teams/<TEAM_ID>/memberships/<MEMBERSHIP_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'roles': [],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_delete_membership(self):
+    @requests_mock.Mocker()
+    def test_delete_membership(self, m):
         data = ''
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'DELETE',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.teams.delete_membership(
+        response = self.teams.delete_membership(
             '<TEAM_ID>',
             '<MEMBERSHIP_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/teams/<TEAM_ID>/memberships/<MEMBERSHIP_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(sent, {})
         self.assertEqual(response, data)
 
-    @respx.mock
-    async def test_update_membership_status(self):
+    @requests_mock.Mocker()
+    def test_update_membership_status(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -353,38 +572,82 @@ class TeamsServiceTest(unittest.IsolatedAsyncioTestCase):
             "roles": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PATCH',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.teams.update_membership_status(
+        response = self.teams.update_membership_status(
             '<TEAM_ID>',
             '<MEMBERSHIP_ID>',
             '<USER_ID>',
             '<SECRET>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/teams/<TEAM_ID>/memberships/<MEMBERSHIP_ID>/status',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'userId': '<USER_ID>',
+                'secret': '<SECRET>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_get_prefs(self):
+    @requests_mock.Mocker()
+    def test_get_prefs(self, m):
         data = {}
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.teams.get_prefs(
+        response = self.teams.get_prefs(
             '<TEAM_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/teams/<TEAM_ID>/prefs',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_update_prefs(self):
+    @requests_mock.Mocker()
+    def test_update_prefs(self, m):
         data = {}
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PUT',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.teams.update_prefs(
+        response = self.teams.update_prefs(
             '<TEAM_ID>',
             {},
+        )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/teams/<TEAM_ID>/prefs',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'prefs': {},
+            },
         )
         self.assertEqual(response.to_dict(), data)

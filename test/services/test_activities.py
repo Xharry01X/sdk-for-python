@@ -1,7 +1,8 @@
 import json
-import httpx2
-import respx
+import re
+import requests_mock
 import unittest
+from urllib.parse import parse_qs, unquote, urlsplit
 
 from appwrite.client import Client
 from appwrite.input_file import InputFile
@@ -9,33 +10,46 @@ from appwrite.models import *
 from appwrite.services.activities import Activities
 
 
-class ActivitiesServiceTest(unittest.IsolatedAsyncioTestCase):
+class ActivitiesServiceTest(unittest.TestCase):
 
-    async def asyncSetUp(self):
+    def setUp(self):
         self.client = Client()
         self.activities = Activities(self.client)
 
-    async def asyncTearDown(self):
-        await self.client.aclose()
-
-    @respx.mock
-    async def test_list_events(self):
+    @requests_mock.Mocker()
+    def test_list_events(self, m):
         data = {
             "total": 5.0,
             "events": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.activities.list_events(
+        response = self.activities.list_events(
             queries=[],
             total=False,
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/activities/events',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(
+            sent,
+            {
+                'total': ['false'],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_get_event(self):
+    @requests_mock.Mocker()
+    def test_get_event(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "actorType": "user",
@@ -68,10 +82,21 @@ class ActivitiesServiceTest(unittest.IsolatedAsyncioTestCase):
             "sdkVersion": "14.0.0",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.activities.get_event(
+        response = self.activities.get_event(
             '<EVENT_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/activities/events/<EVENT_ID>',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)

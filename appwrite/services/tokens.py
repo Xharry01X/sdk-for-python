@@ -12,7 +12,7 @@ class Tokens(Service):
     def __init__(self, client) -> None:
         super(Tokens, self).__init__(client)
 
-    async def list(
+    def list(
         self,
         bucket_id: str,
         file_id: str,
@@ -56,7 +56,7 @@ class Tokens(Service):
         if total is not None:
             api_params['total'] = self._normalize_value(total)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -68,7 +68,7 @@ class Tokens(Service):
 
         return self._parse_response(response, model=ResourceTokenList)
 
-    async def create_file_token(
+    def create_file_token(
         self,
         bucket_id: str,
         file_id: str,
@@ -107,7 +107,7 @@ class Tokens(Service):
         if expire is not None:
             api_params['expire'] = self._normalize_value(expire)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -120,7 +120,7 @@ class Tokens(Service):
 
         return self._parse_response(response, model=ResourceToken)
 
-    async def get(
+    def get(
         self,
         token_id: str,
     ) -> ResourceToken:
@@ -148,7 +148,7 @@ class Tokens(Service):
             raise AppwriteException('Missing required parameter: "token_id"')
         api_path = api_path.replace('{tokenId}', self._encode_path(token_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -160,7 +160,7 @@ class Tokens(Service):
 
         return self._parse_response(response, model=ResourceToken)
 
-    async def update(
+    def update(
         self,
         token_id: str,
         expire: Optional[str] = None,
@@ -193,7 +193,7 @@ class Tokens(Service):
         if expire is not None:
             api_params['expire'] = self._normalize_value(expire)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -206,7 +206,7 @@ class Tokens(Service):
 
         return self._parse_response(response, model=ResourceToken)
 
-    async def delete(
+    def delete(
         self,
         token_id: str,
     ) -> Dict[str, Any]:
@@ -234,7 +234,7 @@ class Tokens(Service):
             raise AppwriteException('Missing required parameter: "token_id"')
         api_path = api_path.replace('{tokenId}', self._encode_path(token_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {

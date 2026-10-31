@@ -1,0 +1,338 @@
+import json
+import httpx2
+import respx
+import unittest
+
+from appwrite.async_client import AsyncClient
+from appwrite.input_file import InputFile
+from appwrite.models import *
+from appwrite.async_services.storage import AsyncStorage
+
+
+class AsyncStorageServiceTest(unittest.IsolatedAsyncioTestCase):
+
+    async def asyncSetUp(self):
+        self.client = AsyncClient()
+        self.storage = AsyncStorage(self.client)
+
+    async def asyncTearDown(self):
+        await self.client.aclose()
+
+    @respx.mock
+    async def test_list_buckets(self):
+        data = {
+            "total": 5.0,
+            "buckets": [],
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.storage.list_buckets(
+            queries=[],
+            search='<SEARCH>',
+            total=False,
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_create_bucket(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "$permissions": [],
+            "fileSecurity": True,
+            "name": "Documents",
+            "description": "Invoices and receipts uploaded by customers.",
+            "enabled": True,
+            "maximumFileSize": 100.0,
+            "allowedFileExtensions": [],
+            "compression": "gzip",
+            "encryption": True,
+            "antivirus": True,
+            "transformations": True,
+            "stripMetadata": True,
+            "totalSize": 128.0,
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.storage.create_bucket(
+            '<BUCKET_ID>',
+            '<NAME>',
+            permissions=[],
+            file_security=False,
+            enabled=False,
+            maximum_file_size=1,
+            allowed_file_extensions=[],
+            compression='none',
+            encryption=False,
+            antivirus=False,
+            transformations=False,
+            description='<DESCRIPTION>',
+            strip_metadata=False,
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_get_bucket(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "$permissions": [],
+            "fileSecurity": True,
+            "name": "Documents",
+            "description": "Invoices and receipts uploaded by customers.",
+            "enabled": True,
+            "maximumFileSize": 100.0,
+            "allowedFileExtensions": [],
+            "compression": "gzip",
+            "encryption": True,
+            "antivirus": True,
+            "transformations": True,
+            "stripMetadata": True,
+            "totalSize": 128.0,
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.storage.get_bucket(
+            '<BUCKET_ID>',
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_update_bucket(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "$permissions": [],
+            "fileSecurity": True,
+            "name": "Documents",
+            "description": "Invoices and receipts uploaded by customers.",
+            "enabled": True,
+            "maximumFileSize": 100.0,
+            "allowedFileExtensions": [],
+            "compression": "gzip",
+            "encryption": True,
+            "antivirus": True,
+            "transformations": True,
+            "stripMetadata": True,
+            "totalSize": 128.0,
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.storage.update_bucket(
+            '<BUCKET_ID>',
+            '<NAME>',
+            permissions=[],
+            file_security=False,
+            enabled=False,
+            maximum_file_size=1,
+            allowed_file_extensions=[],
+            compression='none',
+            encryption=False,
+            antivirus=False,
+            transformations=False,
+            description='<DESCRIPTION>',
+            strip_metadata=False,
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_delete_bucket(self):
+        data = ''
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.storage.delete_bucket(
+            '<BUCKET_ID>',
+        )
+        self.assertEqual(response, data)
+
+    @respx.mock
+    async def test_list_files(self):
+        data = {
+            "total": 5.0,
+            "files": [],
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.storage.list_files(
+            '<BUCKET_ID>',
+            queries=[],
+            search='<SEARCH>',
+            total=False,
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_create_file(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "bucketId": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "$permissions": [],
+            "name": "Pink.png",
+            "folder": "photos\/2026\/",
+            "key": "photos\/2026\/Pink.png",
+            "signature": "5d529fd02b544198ae075bd57c1762bb",
+            "mimeType": "image\/png",
+            "sizeOriginal": 17890.0,
+            "sizeActual": 12345.0,
+            "chunksTotal": 17890.0,
+            "chunksUploaded": 17890.0,
+            "encryption": True,
+            "compression": "gzip",
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.storage.create_file(
+            '<BUCKET_ID>',
+            '<FILE_ID>',
+            InputFile.from_bytes(bytearray(), "example.file"),
+            permissions=[],
+            folder='photos/2026',
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_get_file(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "bucketId": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "$permissions": [],
+            "name": "Pink.png",
+            "folder": "photos\/2026\/",
+            "key": "photos\/2026\/Pink.png",
+            "signature": "5d529fd02b544198ae075bd57c1762bb",
+            "mimeType": "image\/png",
+            "sizeOriginal": 17890.0,
+            "sizeActual": 12345.0,
+            "chunksTotal": 17890.0,
+            "chunksUploaded": 17890.0,
+            "encryption": True,
+            "compression": "gzip",
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.storage.get_file(
+            '<BUCKET_ID>',
+            '<FILE_ID>',
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_update_file(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "bucketId": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "$permissions": [],
+            "name": "Pink.png",
+            "folder": "photos\/2026\/",
+            "key": "photos\/2026\/Pink.png",
+            "signature": "5d529fd02b544198ae075bd57c1762bb",
+            "mimeType": "image\/png",
+            "sizeOriginal": 17890.0,
+            "sizeActual": 12345.0,
+            "chunksTotal": 17890.0,
+            "chunksUploaded": 17890.0,
+            "encryption": True,
+            "compression": "gzip",
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.storage.update_file(
+            '<BUCKET_ID>',
+            '<FILE_ID>',
+            name='name',
+            permissions=[],
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_delete_file(self):
+        data = ''
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.storage.delete_file(
+            '<BUCKET_ID>',
+            '<FILE_ID>',
+        )
+        self.assertEqual(response, data)
+
+    @respx.mock
+    async def test_get_file_download(self):
+        data = bytearray()
+        headers = {'Content-Type': 'application/octet-stream'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, content=bytes(data), headers=headers),
+        )
+        response = await self.storage.get_file_download(
+            '<BUCKET_ID>',
+            '<FILE_ID>',
+            token='<TOKEN>',
+        )
+        self.assertEqual(response, data)
+
+    @respx.mock
+    async def test_get_file_preview(self):
+        data = bytearray()
+        headers = {'Content-Type': 'application/octet-stream'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, content=bytes(data), headers=headers),
+        )
+        response = await self.storage.get_file_preview(
+            '<BUCKET_ID>',
+            '<FILE_ID>',
+            width=1,
+            height=1,
+            gravity='auto',
+            quality=1,
+            border_width=1,
+            border_color='FFFFFF',
+            border_radius=1,
+            opacity=1.0,
+            rotation=1,
+            background='FFFFFF',
+            output='jpg',
+            token='<TOKEN>',
+        )
+        self.assertEqual(response, data)
+
+    @respx.mock
+    async def test_get_file_view(self):
+        data = bytearray()
+        headers = {'Content-Type': 'application/octet-stream'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, content=bytes(data), headers=headers),
+        )
+        response = await self.storage.get_file_view(
+            '<BUCKET_ID>',
+            '<FILE_ID>',
+            token='<TOKEN>',
+        )
+        self.assertEqual(response, data)

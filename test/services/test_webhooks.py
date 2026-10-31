@@ -1,7 +1,8 @@
 import json
-import httpx2
-import respx
+import re
+import requests_mock
 import unittest
+from urllib.parse import parse_qs, unquote, urlsplit
 
 from appwrite.client import Client
 from appwrite.input_file import InputFile
@@ -9,33 +10,46 @@ from appwrite.models import *
 from appwrite.services.webhooks import Webhooks
 
 
-class WebhooksServiceTest(unittest.IsolatedAsyncioTestCase):
+class WebhooksServiceTest(unittest.TestCase):
 
-    async def asyncSetUp(self):
+    def setUp(self):
         self.client = Client()
         self.webhooks = Webhooks(self.client)
 
-    async def asyncTearDown(self):
-        await self.client.aclose()
-
-    @respx.mock
-    async def test_list(self):
+    @requests_mock.Mocker()
+    def test_list(self, m):
         data = {
             "total": 5.0,
             "webhooks": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.webhooks.list(
+        response = self.webhooks.list(
             queries=[],
             total=False,
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/webhooks',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(
+            sent,
+            {
+                'total': ['false'],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_create(self):
+    @requests_mock.Mocker()
+    def test_create(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -53,10 +67,13 @@ class WebhooksServiceTest(unittest.IsolatedAsyncioTestCase):
             "attempts": 10.0,
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.webhooks.create(
+        response = self.webhooks.create(
             '<WEBHOOK_ID>',
             'https://example.com/webhook',
             '<NAME>',
@@ -68,10 +85,32 @@ class WebhooksServiceTest(unittest.IsolatedAsyncioTestCase):
             secret='<SECRET>',
             description='<DESCRIPTION>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/webhooks',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'webhookId': '<WEBHOOK_ID>',
+                'url': 'https://example.com/webhook',
+                'name': '<NAME>',
+                'events': [],
+                'enabled': False,
+                'tls': False,
+                'authUsername': '<AUTH_USERNAME>',
+                'authPassword': 'password',
+                'secret': '<SECRET>',
+                'description': '<DESCRIPTION>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_get(self):
+    @requests_mock.Mocker()
+    def test_get(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -89,16 +128,27 @@ class WebhooksServiceTest(unittest.IsolatedAsyncioTestCase):
             "attempts": 10.0,
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.webhooks.get(
+        response = self.webhooks.get(
             '<WEBHOOK_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/webhooks/<WEBHOOK_ID>',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_update(self):
+    @requests_mock.Mocker()
+    def test_update(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -116,10 +166,13 @@ class WebhooksServiceTest(unittest.IsolatedAsyncioTestCase):
             "attempts": 10.0,
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PUT',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.webhooks.update(
+        response = self.webhooks.update(
             '<WEBHOOK_ID>',
             '<NAME>',
             'https://example.com/webhook',
@@ -130,22 +183,53 @@ class WebhooksServiceTest(unittest.IsolatedAsyncioTestCase):
             auth_password='password',
             description='<DESCRIPTION>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/webhooks/<WEBHOOK_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'name': '<NAME>',
+                'url': 'https://example.com/webhook',
+                'events': [],
+                'enabled': False,
+                'tls': False,
+                'authUsername': '<AUTH_USERNAME>',
+                'authPassword': 'password',
+                'description': '<DESCRIPTION>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_delete(self):
+    @requests_mock.Mocker()
+    def test_delete(self, m):
         data = ''
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'DELETE',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.webhooks.delete(
+        response = self.webhooks.delete(
             '<WEBHOOK_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/webhooks/<WEBHOOK_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(sent, {})
         self.assertEqual(response, data)
 
-    @respx.mock
-    async def test_update_secret(self):
+    @requests_mock.Mocker()
+    def test_update_secret(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -163,11 +247,27 @@ class WebhooksServiceTest(unittest.IsolatedAsyncioTestCase):
             "attempts": 10.0,
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PATCH',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.webhooks.update_secret(
+        response = self.webhooks.update_secret(
             '<WEBHOOK_ID>',
             secret='<SECRET>',
+        )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/webhooks/<WEBHOOK_ID>/secret',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'secret': '<SECRET>',
+            },
         )
         self.assertEqual(response.to_dict(), data)

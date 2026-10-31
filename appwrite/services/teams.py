@@ -19,7 +19,7 @@ class Teams(Service):
     def __init__(self, client) -> None:
         super(Teams, self).__init__(client)
 
-    async def list(
+    def list(
         self,
         queries: Optional[List[str]] = None,
         search: Optional[str] = None,
@@ -60,7 +60,7 @@ class Teams(Service):
         if total is not None:
             api_params['total'] = self._normalize_value(total)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -72,7 +72,7 @@ class Teams(Service):
 
         return TeamList.with_data(response, model_type)
 
-    async def create(
+    def create(
         self,
         team_id: str,
         name: str,
@@ -115,7 +115,7 @@ class Teams(Service):
         if roles is not None:
             api_params['roles'] = self._normalize_value(roles)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -128,7 +128,7 @@ class Teams(Service):
 
         return Team.with_data(response, model_type)
 
-    async def get(
+    def get(
         self,
         team_id: str,
         model_type: Type[T] = dict,
@@ -160,7 +160,7 @@ class Teams(Service):
             raise AppwriteException('Missing required parameter: "team_id"')
         api_path = api_path.replace('{teamId}', self._encode_path(team_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -172,7 +172,7 @@ class Teams(Service):
 
         return Team.with_data(response, model_type)
 
-    async def update_name(
+    def update_name(
         self,
         team_id: str,
         name: str,
@@ -210,7 +210,7 @@ class Teams(Service):
         api_path = api_path.replace('{teamId}', self._encode_path(team_id))
         api_params['name'] = self._normalize_value(name)
 
-        response = await self.client.call(
+        response = self.client.call(
             'put',
             api_path,
             {
@@ -223,7 +223,7 @@ class Teams(Service):
 
         return Team.with_data(response, model_type)
 
-    async def delete(
+    def delete(
         self,
         team_id: str,
     ) -> Dict[str, Any]:
@@ -251,7 +251,7 @@ class Teams(Service):
             raise AppwriteException('Missing required parameter: "team_id"')
         api_path = api_path.replace('{teamId}', self._encode_path(team_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {
@@ -264,7 +264,7 @@ class Teams(Service):
 
         return response
 
-    async def list_installations(
+    def list_installations(
         self,
         team_id: str,
         queries: Optional[List[str]] = None,
@@ -302,7 +302,7 @@ class Teams(Service):
         if total is not None:
             api_params['total'] = self._normalize_value(total)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -314,7 +314,7 @@ class Teams(Service):
 
         return self._parse_response(response, model=AppInstallationList)
 
-    async def create_installation(
+    def create_installation(
         self,
         team_id: str,
         app_id: str,
@@ -353,7 +353,7 @@ class Teams(Service):
         if authorization_details is not None:
             api_params['authorizationDetails'] = self._normalize_value(authorization_details)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -366,7 +366,7 @@ class Teams(Service):
 
         return self._parse_response(response, model=AppInstallation)
 
-    async def get_installation(
+    def get_installation(
         self,
         team_id: str,
         installation_id: str,
@@ -400,7 +400,7 @@ class Teams(Service):
         api_path = api_path.replace('{teamId}', self._encode_path(team_id))
         api_path = api_path.replace('{installationId}', self._encode_path(installation_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -412,7 +412,7 @@ class Teams(Service):
 
         return self._parse_response(response, model=AppInstallation)
 
-    async def update_installation(
+    def update_installation(
         self,
         team_id: str,
         installation_id: str,
@@ -451,7 +451,7 @@ class Teams(Service):
         if authorization_details is not None:
             api_params['authorizationDetails'] = self._normalize_value(authorization_details)
 
-        response = await self.client.call(
+        response = self.client.call(
             'put',
             api_path,
             {
@@ -464,7 +464,7 @@ class Teams(Service):
 
         return self._parse_response(response, model=AppInstallation)
 
-    async def delete_installation(
+    def delete_installation(
         self,
         team_id: str,
         installation_id: str,
@@ -498,7 +498,7 @@ class Teams(Service):
         api_path = api_path.replace('{teamId}', self._encode_path(team_id))
         api_path = api_path.replace('{installationId}', self._encode_path(installation_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {
@@ -511,7 +511,7 @@ class Teams(Service):
 
         return response
 
-    async def list_memberships(
+    def list_memberships(
         self,
         team_id: str,
         queries: Optional[List[str]] = None,
@@ -554,7 +554,7 @@ class Teams(Service):
         if total is not None:
             api_params['total'] = self._normalize_value(total)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -566,7 +566,7 @@ class Teams(Service):
 
         return self._parse_response(response, model=MembershipList)
 
-    async def create_membership(
+    def create_membership(
         self,
         team_id: str,
         roles: List[str],
@@ -636,7 +636,7 @@ class Teams(Service):
         if membership_id is not None:
             api_params['membershipId'] = self._normalize_value(membership_id)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -649,7 +649,7 @@ class Teams(Service):
 
         return self._parse_response(response, model=Membership)
 
-    async def get_membership(
+    def get_membership(
         self,
         team_id: str,
         membership_id: str,
@@ -683,7 +683,7 @@ class Teams(Service):
         api_path = api_path.replace('{teamId}', self._encode_path(team_id))
         api_path = api_path.replace('{membershipId}', self._encode_path(membership_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -695,7 +695,7 @@ class Teams(Service):
 
         return self._parse_response(response, model=Membership)
 
-    async def update_membership(
+    def update_membership(
         self,
         team_id: str,
         membership_id: str,
@@ -735,7 +735,7 @@ class Teams(Service):
         api_path = api_path.replace('{membershipId}', self._encode_path(membership_id))
         api_params['roles'] = self._normalize_value(roles)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -748,7 +748,7 @@ class Teams(Service):
 
         return self._parse_response(response, model=Membership)
 
-    async def delete_membership(
+    def delete_membership(
         self,
         team_id: str,
         membership_id: str,
@@ -782,7 +782,7 @@ class Teams(Service):
         api_path = api_path.replace('{teamId}', self._encode_path(team_id))
         api_path = api_path.replace('{membershipId}', self._encode_path(membership_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {
@@ -795,7 +795,7 @@ class Teams(Service):
 
         return response
 
-    async def update_membership_status(
+    def update_membership_status(
         self,
         team_id: str,
         membership_id: str,
@@ -843,7 +843,7 @@ class Teams(Service):
         api_params['userId'] = self._normalize_value(user_id)
         api_params['secret'] = self._normalize_value(secret)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -856,7 +856,7 @@ class Teams(Service):
 
         return self._parse_response(response, model=Membership)
 
-    async def get_prefs(
+    def get_prefs(
         self,
         team_id: str,
         model_type: Type[T] = dict,
@@ -888,7 +888,7 @@ class Teams(Service):
             raise AppwriteException('Missing required parameter: "team_id"')
         api_path = api_path.replace('{teamId}', self._encode_path(team_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -900,7 +900,7 @@ class Teams(Service):
 
         return Preferences.with_data(response, model_type)
 
-    async def update_prefs(
+    def update_prefs(
         self,
         team_id: str,
         prefs: Dict[str, Any],
@@ -938,7 +938,7 @@ class Teams(Service):
         api_path = api_path.replace('{teamId}', self._encode_path(team_id))
         api_params['prefs'] = self._normalize_value(prefs)
 
-        response = await self.client.call(
+        response = self.client.call(
             'put',
             api_path,
             {

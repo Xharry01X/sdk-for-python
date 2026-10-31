@@ -1,7 +1,8 @@
 import json
-import httpx2
-import respx
+import re
+import requests_mock
 import unittest
+from urllib.parse import parse_qs, unquote, urlsplit
 
 from appwrite.client import Client
 from appwrite.input_file import InputFile
@@ -9,33 +10,46 @@ from appwrite.models import *
 from appwrite.services.documents_db import DocumentsDB
 
 
-class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
+class DocumentsDBServiceTest(unittest.TestCase):
 
-    async def asyncSetUp(self):
+    def setUp(self):
         self.client = Client()
         self.documents_db = DocumentsDB(self.client)
 
-    async def asyncTearDown(self):
-        await self.client.aclose()
-
-    @respx.mock
-    async def test_list(self):
+    @requests_mock.Mocker()
+    def test_list(self, m):
         data = {
             "total": 5.0,
             "databases": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.list(
+        response = self.documents_db.list(
             queries=[],
             total=False,
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(
+            sent,
+            {
+                'total': ['false'],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_create(self):
+    @requests_mock.Mocker()
+    def test_create(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "name": "My Database",
@@ -46,10 +60,13 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             "type": "legacy",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.create(
+        response = self.documents_db.create(
             '<DATABASE_ID>',
             '<NAME>',
             enabled=False,
@@ -58,39 +75,85 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             replicas=1,
             sync_mode='async',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'databaseId': '<DATABASE_ID>',
+                'name': '<NAME>',
+                'enabled': False,
+                'description': '<DESCRIPTION>',
+                'specification': 'serverless',
+                'replicas': 1,
+                'syncMode': 'async',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_list_specifications(self):
+    @requests_mock.Mocker()
+    def test_list_specifications(self, m):
         data = {
             "specifications": [],
             "total": 9.0,
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.list_specifications()
+        response = self.documents_db.list_specifications()
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/specifications',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_list_transactions(self):
+    @requests_mock.Mocker()
+    def test_list_transactions(self, m):
         data = {
             "total": 5.0,
             "transactions": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.list_transactions(
+        response = self.documents_db.list_transactions(
             queries=[],
             total=False,
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/transactions',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(
+            sent,
+            {
+                'total': ['false'],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_create_transaction(self):
+    @requests_mock.Mocker()
+    def test_create_transaction(self, m):
         data = {
             "$id": "259125845563242502",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -100,16 +163,32 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             "expiresAt": "2020-10-15T06:38:00.000+00:00",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.create_transaction(
+        response = self.documents_db.create_transaction(
             ttl=1,
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/transactions',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'ttl': 1,
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_get_transaction(self):
+    @requests_mock.Mocker()
+    def test_get_transaction(self, m):
         data = {
             "$id": "259125845563242502",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -119,16 +198,27 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             "expiresAt": "2020-10-15T06:38:00.000+00:00",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.get_transaction(
+        response = self.documents_db.get_transaction(
             '<TRANSACTION_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/transactions/<TRANSACTION_ID>',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_update_transaction(self):
+    @requests_mock.Mocker()
+    def test_update_transaction(self, m):
         data = {
             "$id": "259125845563242502",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -138,30 +228,58 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             "expiresAt": "2020-10-15T06:38:00.000+00:00",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PATCH',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.update_transaction(
+        response = self.documents_db.update_transaction(
             '<TRANSACTION_ID>',
             commit=False,
             rollback=False,
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/transactions/<TRANSACTION_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'commit': False,
+                'rollback': False,
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_delete_transaction(self):
+    @requests_mock.Mocker()
+    def test_delete_transaction(self, m):
         data = ''
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'DELETE',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.delete_transaction(
+        response = self.documents_db.delete_transaction(
             '<TRANSACTION_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/transactions/<TRANSACTION_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(sent, {})
         self.assertEqual(response, data)
 
-    @respx.mock
-    async def test_create_operations(self):
+    @requests_mock.Mocker()
+    def test_create_operations(self, m):
         data = {
             "$id": "259125845563242502",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -171,17 +289,33 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             "expiresAt": "2020-10-15T06:38:00.000+00:00",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.create_operations(
+        response = self.documents_db.create_operations(
             '<TRANSACTION_ID>',
             operations=[],
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/transactions/<TRANSACTION_ID>/operations',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'operations': [],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_get(self):
+    @requests_mock.Mocker()
+    def test_get(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "name": "My Database",
@@ -192,16 +326,27 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             "type": "legacy",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.get(
+        response = self.documents_db.get(
             '<DATABASE_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_update(self):
+    @requests_mock.Mocker()
+    def test_update(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "name": "My Database",
@@ -212,10 +357,13 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             "type": "legacy",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PUT',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.update(
+        response = self.documents_db.update(
             '<DATABASE_ID>',
             '<NAME>',
             enabled=False,
@@ -224,40 +372,86 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             replicas=1,
             sync_mode='async',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'name': '<NAME>',
+                'enabled': False,
+                'description': '<DESCRIPTION>',
+                'specification': 'serverless',
+                'replicas': 1,
+                'syncMode': 'async',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_delete(self):
+    @requests_mock.Mocker()
+    def test_delete(self, m):
         data = ''
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'DELETE',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.delete(
+        response = self.documents_db.delete(
             '<DATABASE_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(sent, {})
         self.assertEqual(response, data)
 
-    @respx.mock
-    async def test_list_collections(self):
+    @requests_mock.Mocker()
+    def test_list_collections(self, m):
         data = {
             "total": 5.0,
             "collections": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.list_collections(
+        response = self.documents_db.list_collections(
             '<DATABASE_ID>',
             queries=[],
             search='<SEARCH>',
             total=False,
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(
+            sent,
+            {
+                'search': ['<SEARCH>'],
+                'total': ['false'],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_create_collection(self):
+    @requests_mock.Mocker()
+    def test_create_collection(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -274,10 +468,13 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             "bytesUsed": 1500.0,
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.create_collection(
+        response = self.documents_db.create_collection(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<NAME>',
@@ -288,10 +485,30 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             indexes=[],
             description='<DESCRIPTION>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'collectionId': '<COLLECTION_ID>',
+                'name': '<NAME>',
+                'permissions': [],
+                'documentSecurity': False,
+                'enabled': False,
+                'attributes': [],
+                'indexes': [],
+                'description': '<DESCRIPTION>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_get_collection(self):
+    @requests_mock.Mocker()
+    def test_get_collection(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -308,17 +525,28 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             "bytesUsed": 1500.0,
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.get_collection(
+        response = self.documents_db.get_collection(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections/<COLLECTION_ID>',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_update_collection(self):
+    @requests_mock.Mocker()
+    def test_update_collection(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -335,10 +563,13 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             "bytesUsed": 1500.0,
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PUT',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.update_collection(
+        response = self.documents_db.update_collection(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<NAME>',
@@ -348,32 +579,64 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             purge=False,
             description='<DESCRIPTION>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections/<COLLECTION_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'name': '<NAME>',
+                'permissions': [],
+                'documentSecurity': False,
+                'enabled': False,
+                'purge': False,
+                'description': '<DESCRIPTION>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_delete_collection(self):
+    @requests_mock.Mocker()
+    def test_delete_collection(self, m):
         data = ''
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'DELETE',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.delete_collection(
+        response = self.documents_db.delete_collection(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections/<COLLECTION_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(sent, {})
         self.assertEqual(response, data)
 
-    @respx.mock
-    async def test_list_documents(self):
+    @requests_mock.Mocker()
+    def test_list_documents(self, m):
         data = {
             "total": 5.0,
             "documents": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.list_documents(
+        response = self.documents_db.list_documents(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             queries=[],
@@ -381,10 +644,25 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             total=False,
             ttl=1,
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections/<COLLECTION_ID>/documents',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(
+            sent,
+            {
+                'transactionId': ['<TRANSACTION_ID>'],
+                'total': ['false'],
+                'ttl': ['1'],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_create_document(self):
+    @requests_mock.Mocker()
+    def test_create_document(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$sequence": "1",
@@ -395,10 +673,13 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             "$permissions": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.create_document(
+        response = self.documents_db.create_document(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<DOCUMENT_ID>',
@@ -406,93 +687,181 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             permissions=[],
             transaction_id='<TRANSACTION_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections/<COLLECTION_ID>/documents',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'documentId': '<DOCUMENT_ID>',
+                'data': {},
+                'permissions': [],
+                'transactionId': '<TRANSACTION_ID>',
+            },
+        )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_create_documents(self):
+    @requests_mock.Mocker()
+    def test_create_documents(self, m):
         data = {
             "total": 5.0,
             "documents": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.create_documents(
+        response = self.documents_db.create_documents(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             [],
             transaction_id='<TRANSACTION_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections/<COLLECTION_ID>/documents',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'documents': [],
+                'transactionId': '<TRANSACTION_ID>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_upsert_documents(self):
+    @requests_mock.Mocker()
+    def test_upsert_documents(self, m):
         data = {
             "total": 5.0,
             "documents": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PUT',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.upsert_documents(
+        response = self.documents_db.upsert_documents(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             [],
             transaction_id='<TRANSACTION_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections/<COLLECTION_ID>/documents',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'documents': [],
+                'transactionId': '<TRANSACTION_ID>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_update_documents(self):
+    @requests_mock.Mocker()
+    def test_update_documents(self, m):
         data = {
             "total": 5.0,
             "documents": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PATCH',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.update_documents(
+        response = self.documents_db.update_documents(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             data={},
             queries=[],
             transaction_id='<TRANSACTION_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections/<COLLECTION_ID>/documents',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'data': {},
+                'queries': [],
+                'transactionId': '<TRANSACTION_ID>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_delete_documents(self):
+    @requests_mock.Mocker()
+    def test_delete_documents(self, m):
         data = {
             "total": 5.0,
             "documents": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'DELETE',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.delete_documents(
+        response = self.documents_db.delete_documents(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             queries=[],
             transaction_id='<TRANSACTION_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections/<COLLECTION_ID>/documents',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'queries': [],
+                'transactionId': '<TRANSACTION_ID>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_create_query(self):
+    @requests_mock.Mocker()
+    def test_create_query(self, m):
         data = {
             "total": 5.0,
             "documents": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.create_query(
+        response = self.documents_db.create_query(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             queries=[],
@@ -500,10 +869,26 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             total=False,
             ttl=1,
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections/<COLLECTION_ID>/documents/query',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'queries': [],
+                'transactionId': '<TRANSACTION_ID>',
+                'total': False,
+                'ttl': 1,
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_get_document(self):
+    @requests_mock.Mocker()
+    def test_get_document(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$sequence": "1",
@@ -514,21 +899,37 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             "$permissions": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.get_document(
+        response = self.documents_db.get_document(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<DOCUMENT_ID>',
             queries=[],
             transaction_id='<TRANSACTION_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections/<COLLECTION_ID>/documents/<DOCUMENT_ID>',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(
+            sent,
+            {
+                'transactionId': ['<TRANSACTION_ID>'],
+            },
+        )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_upsert_document(self):
+    @requests_mock.Mocker()
+    def test_upsert_document(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$sequence": "1",
@@ -539,10 +940,13 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             "$permissions": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PUT',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.upsert_document(
+        response = self.documents_db.upsert_document(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<DOCUMENT_ID>',
@@ -550,11 +954,26 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             permissions=[],
             transaction_id='<TRANSACTION_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections/<COLLECTION_ID>/documents/<DOCUMENT_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'data': {},
+                'permissions': [],
+                'transactionId': '<TRANSACTION_ID>',
+            },
+        )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_update_document(self):
+    @requests_mock.Mocker()
+    def test_update_document(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$sequence": "1",
@@ -565,10 +984,13 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             "$permissions": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PATCH',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.update_document(
+        response = self.documents_db.update_document(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<DOCUMENT_ID>',
@@ -576,26 +998,57 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             permissions=[],
             transaction_id='<TRANSACTION_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections/<COLLECTION_ID>/documents/<DOCUMENT_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'data': {},
+                'permissions': [],
+                'transactionId': '<TRANSACTION_ID>',
+            },
+        )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_delete_document(self):
+    @requests_mock.Mocker()
+    def test_delete_document(self, m):
         data = ''
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'DELETE',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.delete_document(
+        response = self.documents_db.delete_document(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<DOCUMENT_ID>',
             transaction_id='<TRANSACTION_ID>',
+        )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections/<COLLECTION_ID>/documents/<DOCUMENT_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'transactionId': '<TRANSACTION_ID>',
+            },
         )
         self.assertEqual(response, data)
 
-    @respx.mock
-    async def test_decrement_document_attribute(self):
+    @requests_mock.Mocker()
+    def test_decrement_document_attribute(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$sequence": "1",
@@ -606,10 +1059,13 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             "$permissions": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PATCH',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.decrement_document_attribute(
+        response = self.documents_db.decrement_document_attribute(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<DOCUMENT_ID>',
@@ -618,11 +1074,26 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             min=1.0,
             transaction_id='<TRANSACTION_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections/<COLLECTION_ID>/documents/<DOCUMENT_ID>/<ATTRIBUTE>/decrement',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'value': 1.0,
+                'min': 1.0,
+                'transactionId': '<TRANSACTION_ID>',
+            },
+        )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_increment_document_attribute(self):
+    @requests_mock.Mocker()
+    def test_increment_document_attribute(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$sequence": "1",
@@ -633,10 +1104,13 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             "$permissions": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PATCH',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.increment_document_attribute(
+        response = self.documents_db.increment_document_attribute(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<DOCUMENT_ID>',
@@ -645,29 +1119,60 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             max=1.0,
             transaction_id='<TRANSACTION_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections/<COLLECTION_ID>/documents/<DOCUMENT_ID>/<ATTRIBUTE>/increment',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'value': 1.0,
+                'max': 1.0,
+                'transactionId': '<TRANSACTION_ID>',
+            },
+        )
         data['data'] = {}
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_list_indexes(self):
+    @requests_mock.Mocker()
+    def test_list_indexes(self, m):
         data = {
             "total": 5.0,
             "indexes": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.list_indexes(
+        response = self.documents_db.list_indexes(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             queries=[],
             total=False,
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections/<COLLECTION_ID>/indexes',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(
+            sent,
+            {
+                'total': ['false'],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_create_index(self):
+    @requests_mock.Mocker()
+    def test_create_index(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -681,10 +1186,13 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             "lengths": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.create_index(
+        response = self.documents_db.create_index(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
@@ -694,10 +1202,28 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             lengths=[],
             description='<DESCRIPTION>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections/<COLLECTION_ID>/indexes',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'key': '<KEY>',
+                'type': 'key',
+                'attributes': [],
+                'orders': [],
+                'lengths': [],
+                'description': '<DESCRIPTION>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_get_index(self):
+    @requests_mock.Mocker()
+    def test_get_index(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -711,32 +1237,54 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             "lengths": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.get_index(
+        response = self.documents_db.get_index(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections/<COLLECTION_ID>/indexes/<KEY>',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_delete_index(self):
+    @requests_mock.Mocker()
+    def test_delete_index(self, m):
         data = ''
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'DELETE',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.delete_index(
+        response = self.documents_db.delete_index(
             '<DATABASE_ID>',
             '<COLLECTION_ID>',
             '<KEY>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/collections/<COLLECTION_ID>/indexes/<KEY>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(sent, {})
         self.assertEqual(response, data)
 
-    @respx.mock
-    async def test_create_failover(self):
+    @requests_mock.Mocker()
+    def test_create_failover(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -785,35 +1333,69 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             "error": "",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.create_failover(
+        response = self.documents_db.create_failover(
             '<DATABASE_ID>',
             target_replica_id='<TARGET_REPLICA_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/failovers',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'targetReplicaId': '<TARGET_REPLICA_ID>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_list_operations(self):
+    @requests_mock.Mocker()
+    def test_list_operations(self, m):
         data = {
             "total": 5.0,
             "operations": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.list_operations(
+        response = self.documents_db.list_operations(
             '<DATABASE_ID>',
             status='queued',
             limit=1,
             offset=1,
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/operations',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(
+            sent,
+            {
+                'status': ['queued'],
+                'limit': ['1'],
+                'offset': ['1'],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_get_replicas(self):
+    @requests_mock.Mocker()
+    def test_get_replicas(self, m):
         data = {
             "replicas": 2.0,
             "syncMode": "async",
@@ -823,16 +1405,27 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             "members": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.get_replicas(
+        response = self.documents_db.get_replicas(
             '<DATABASE_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/replicas',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_get_status(self):
+    @requests_mock.Mocker()
+    def test_get_status(self, m):
         data = {
             "health": "healthy",
             "ready": True,
@@ -847,10 +1440,21 @@ class DocumentsDBServiceTest(unittest.IsolatedAsyncioTestCase):
             "volumes": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.documents_db.get_status(
+        response = self.documents_db.get_status(
             '<DATABASE_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/documentsdb/<DATABASE_ID>/status',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)

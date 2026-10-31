@@ -52,7 +52,7 @@ class TablesDB(Service):
     def __init__(self, client) -> None:
         super(TablesDB, self).__init__(client)
 
-    async def list(
+    def list(
         self,
         queries: Optional[List[str]] = None,
         search: Optional[str] = None,
@@ -89,7 +89,7 @@ class TablesDB(Service):
         if total is not None:
             api_params['total'] = self._normalize_value(total)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -101,7 +101,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=DatabaseList)
 
-    async def create(
+    def create(
         self,
         database_id: str,
         name: str,
@@ -160,7 +160,7 @@ class TablesDB(Service):
         if sync_mode is not None:
             api_params['syncMode'] = self._normalize_value(sync_mode)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -173,7 +173,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=Database)
 
-    async def list_specifications(
+    def list_specifications(
         self,
     ) -> DedicatedDatabaseSpecificationList:
         """
@@ -192,7 +192,7 @@ class TablesDB(Service):
         api_path = '/tablesdb/specifications'
         api_params = {}
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -204,7 +204,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=DedicatedDatabaseSpecificationList)
 
-    async def list_transactions(
+    def list_transactions(
         self,
         queries: Optional[List[str]] = None,
         total: Optional[bool] = None,
@@ -236,7 +236,7 @@ class TablesDB(Service):
         if total is not None:
             api_params['total'] = self._normalize_value(total)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -248,7 +248,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=TransactionList)
 
-    async def create_transaction(
+    def create_transaction(
         self,
         ttl: Optional[float] = None,
     ) -> Transaction:
@@ -275,7 +275,7 @@ class TablesDB(Service):
         if ttl is not None:
             api_params['ttl'] = self._normalize_value(ttl)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -288,7 +288,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=Transaction)
 
-    async def get_transaction(
+    def get_transaction(
         self,
         transaction_id: str,
     ) -> Transaction:
@@ -316,7 +316,7 @@ class TablesDB(Service):
             raise AppwriteException('Missing required parameter: "transaction_id"')
         api_path = api_path.replace('{transactionId}', self._encode_path(transaction_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -328,7 +328,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=Transaction)
 
-    async def update_transaction(
+    def update_transaction(
         self,
         transaction_id: str,
         commit: Optional[bool] = None,
@@ -366,7 +366,7 @@ class TablesDB(Service):
         if rollback is not None:
             api_params['rollback'] = self._normalize_value(rollback)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -379,7 +379,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=Transaction)
 
-    async def delete_transaction(
+    def delete_transaction(
         self,
         transaction_id: str,
     ) -> Dict[str, Any]:
@@ -407,7 +407,7 @@ class TablesDB(Service):
             raise AppwriteException('Missing required parameter: "transaction_id"')
         api_path = api_path.replace('{transactionId}', self._encode_path(transaction_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {
@@ -420,7 +420,7 @@ class TablesDB(Service):
 
         return response
 
-    async def create_operations(
+    def create_operations(
         self,
         transaction_id: str,
         operations: Optional[List[Dict[str, Any]]] = None,
@@ -453,7 +453,7 @@ class TablesDB(Service):
         if operations is not None:
             api_params['operations'] = self._normalize_value(operations)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -466,7 +466,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=Transaction)
 
-    async def get(
+    def get(
         self,
         database_id: str,
     ) -> Database:
@@ -494,7 +494,7 @@ class TablesDB(Service):
             raise AppwriteException('Missing required parameter: "database_id"')
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -506,7 +506,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=Database)
 
-    async def update(
+    def update(
         self,
         database_id: str,
         name: Optional[str] = None,
@@ -564,7 +564,7 @@ class TablesDB(Service):
         if sync_mode is not None:
             api_params['syncMode'] = self._normalize_value(sync_mode)
 
-        response = await self.client.call(
+        response = self.client.call(
             'put',
             api_path,
             {
@@ -577,7 +577,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=Database)
 
-    async def delete(
+    def delete(
         self,
         database_id: str,
     ) -> Dict[str, Any]:
@@ -605,7 +605,7 @@ class TablesDB(Service):
             raise AppwriteException('Missing required parameter: "database_id"')
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {
@@ -618,7 +618,7 @@ class TablesDB(Service):
 
         return response
 
-    async def create_failover(
+    def create_failover(
         self,
         database_id: str,
         target_replica_id: Optional[str] = None,
@@ -651,7 +651,7 @@ class TablesDB(Service):
         if target_replica_id is not None:
             api_params['targetReplicaId'] = self._normalize_value(target_replica_id)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -664,7 +664,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=DedicatedDatabase)
 
-    async def list_migrations(
+    def list_migrations(
         self,
         database_id: str,
     ) -> DatabaseMigrationList:
@@ -692,7 +692,7 @@ class TablesDB(Service):
             raise AppwriteException('Missing required parameter: "database_id"')
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -704,7 +704,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=DatabaseMigrationList)
 
-    async def create_migration(
+    def create_migration(
         self,
         database_id: str,
         specification: str,
@@ -743,7 +743,7 @@ class TablesDB(Service):
         if auto_cutover is not None:
             api_params['autoCutover'] = self._normalize_value(auto_cutover)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -756,7 +756,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=DatabaseMigration)
 
-    async def get_migration(
+    def get_migration(
         self,
         database_id: str,
         migration_id: str,
@@ -790,7 +790,7 @@ class TablesDB(Service):
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
         api_path = api_path.replace('{migrationId}', self._encode_path(migration_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -802,7 +802,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=DatabaseMigration)
 
-    async def delete_migration(
+    def delete_migration(
         self,
         database_id: str,
         migration_id: str,
@@ -836,7 +836,7 @@ class TablesDB(Service):
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
         api_path = api_path.replace('{migrationId}', self._encode_path(migration_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {
@@ -849,7 +849,7 @@ class TablesDB(Service):
 
         return response
 
-    async def create_cutover(
+    def create_cutover(
         self,
         database_id: str,
         migration_id: str,
@@ -883,7 +883,7 @@ class TablesDB(Service):
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
         api_path = api_path.replace('{migrationId}', self._encode_path(migration_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -896,7 +896,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=DatabaseMigration)
 
-    async def list_operations(
+    def list_operations(
         self,
         database_id: str,
         status: Optional[str] = None,
@@ -939,7 +939,7 @@ class TablesDB(Service):
         if offset is not None:
             api_params['offset'] = self._normalize_value(offset)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -951,7 +951,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=DedicatedDatabaseOperationList)
 
-    async def get_replicas(
+    def get_replicas(
         self,
         database_id: str,
     ) -> DedicatedDatabaseReplicas:
@@ -979,7 +979,7 @@ class TablesDB(Service):
             raise AppwriteException('Missing required parameter: "database_id"')
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -991,7 +991,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=DedicatedDatabaseReplicas)
 
-    async def get_status(
+    def get_status(
         self,
         database_id: str,
     ) -> DatabaseStatus:
@@ -1019,7 +1019,7 @@ class TablesDB(Service):
             raise AppwriteException('Missing required parameter: "database_id"')
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -1031,7 +1031,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=DatabaseStatus)
 
-    async def list_tables(
+    def list_tables(
         self,
         database_id: str,
         queries: Optional[List[str]] = None,
@@ -1074,7 +1074,7 @@ class TablesDB(Service):
         if total is not None:
             api_params['total'] = self._normalize_value(total)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -1086,7 +1086,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=TableList)
 
-    async def create_table(
+    def create_table(
         self,
         database_id: str,
         table_id: str,
@@ -1156,7 +1156,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -1169,7 +1169,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=Table)
 
-    async def get_table(
+    def get_table(
         self,
         database_id: str,
         table_id: str,
@@ -1203,7 +1203,7 @@ class TablesDB(Service):
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
         api_path = api_path.replace('{tableId}', self._encode_path(table_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -1215,7 +1215,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=Table)
 
-    async def update_table(
+    def update_table(
         self,
         database_id: str,
         table_id: str,
@@ -1279,7 +1279,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'put',
             api_path,
             {
@@ -1292,7 +1292,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=Table)
 
-    async def delete_table(
+    def delete_table(
         self,
         database_id: str,
         table_id: str,
@@ -1326,7 +1326,7 @@ class TablesDB(Service):
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
         api_path = api_path.replace('{tableId}', self._encode_path(table_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {
@@ -1339,7 +1339,7 @@ class TablesDB(Service):
 
         return response
 
-    async def list_columns(
+    def list_columns(
         self,
         database_id: str,
         table_id: str,
@@ -1383,7 +1383,7 @@ class TablesDB(Service):
         if total is not None:
             api_params['total'] = self._normalize_value(total)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -1395,7 +1395,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnList)
 
-    async def create_big_int_column(
+    def create_big_int_column(
         self,
         database_id: str,
         table_id: str,
@@ -1466,7 +1466,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -1479,7 +1479,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnBigint)
 
-    async def update_big_int_column(
+    def update_big_int_column(
         self,
         database_id: str,
         table_id: str,
@@ -1549,7 +1549,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -1562,7 +1562,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnBigint)
 
-    async def create_boolean_column(
+    def create_boolean_column(
         self,
         database_id: str,
         table_id: str,
@@ -1623,7 +1623,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -1636,7 +1636,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnBoolean)
 
-    async def update_boolean_column(
+    def update_boolean_column(
         self,
         database_id: str,
         table_id: str,
@@ -1696,7 +1696,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -1709,7 +1709,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnBoolean)
 
-    async def create_datetime_column(
+    def create_datetime_column(
         self,
         database_id: str,
         table_id: str,
@@ -1770,7 +1770,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -1783,7 +1783,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnDatetime)
 
-    async def update_datetime_column(
+    def update_datetime_column(
         self,
         database_id: str,
         table_id: str,
@@ -1843,7 +1843,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -1856,7 +1856,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnDatetime)
 
-    async def create_email_column(
+    def create_email_column(
         self,
         database_id: str,
         table_id: str,
@@ -1917,7 +1917,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -1930,7 +1930,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnEmail)
 
-    async def update_email_column(
+    def update_email_column(
         self,
         database_id: str,
         table_id: str,
@@ -1990,7 +1990,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -2003,7 +2003,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnEmail)
 
-    async def create_enum_column(
+    def create_enum_column(
         self,
         database_id: str,
         table_id: str,
@@ -2070,7 +2070,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -2083,7 +2083,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnEnum)
 
-    async def update_enum_column(
+    def update_enum_column(
         self,
         database_id: str,
         table_id: str,
@@ -2149,7 +2149,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -2162,7 +2162,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnEnum)
 
-    async def create_float_column(
+    def create_float_column(
         self,
         database_id: str,
         table_id: str,
@@ -2233,7 +2233,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -2246,7 +2246,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnFloat)
 
-    async def update_float_column(
+    def update_float_column(
         self,
         database_id: str,
         table_id: str,
@@ -2316,7 +2316,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -2329,7 +2329,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnFloat)
 
-    async def create_integer_column(
+    def create_integer_column(
         self,
         database_id: str,
         table_id: str,
@@ -2400,7 +2400,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -2413,7 +2413,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnInteger)
 
-    async def update_integer_column(
+    def update_integer_column(
         self,
         database_id: str,
         table_id: str,
@@ -2483,7 +2483,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -2496,7 +2496,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnInteger)
 
-    async def create_ip_column(
+    def create_ip_column(
         self,
         database_id: str,
         table_id: str,
@@ -2557,7 +2557,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -2570,7 +2570,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnIp)
 
-    async def update_ip_column(
+    def update_ip_column(
         self,
         database_id: str,
         table_id: str,
@@ -2630,7 +2630,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -2643,7 +2643,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnIp)
 
-    async def create_line_column(
+    def create_line_column(
         self,
         database_id: str,
         table_id: str,
@@ -2699,7 +2699,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -2712,7 +2712,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnLine)
 
-    async def update_line_column(
+    def update_line_column(
         self,
         database_id: str,
         table_id: str,
@@ -2773,7 +2773,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -2786,7 +2786,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnLine)
 
-    async def create_longtext_column(
+    def create_longtext_column(
         self,
         database_id: str,
         table_id: str,
@@ -2852,7 +2852,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -2865,7 +2865,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnLongtext)
 
-    async def update_longtext_column(
+    def update_longtext_column(
         self,
         database_id: str,
         table_id: str,
@@ -2925,7 +2925,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -2938,7 +2938,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnLongtext)
 
-    async def create_mediumtext_column(
+    def create_mediumtext_column(
         self,
         database_id: str,
         table_id: str,
@@ -3004,7 +3004,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -3017,7 +3017,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnMediumtext)
 
-    async def update_mediumtext_column(
+    def update_mediumtext_column(
         self,
         database_id: str,
         table_id: str,
@@ -3077,7 +3077,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -3090,7 +3090,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnMediumtext)
 
-    async def create_point_column(
+    def create_point_column(
         self,
         database_id: str,
         table_id: str,
@@ -3146,7 +3146,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -3159,7 +3159,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnPoint)
 
-    async def update_point_column(
+    def update_point_column(
         self,
         database_id: str,
         table_id: str,
@@ -3220,7 +3220,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -3233,7 +3233,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnPoint)
 
-    async def create_polygon_column(
+    def create_polygon_column(
         self,
         database_id: str,
         table_id: str,
@@ -3289,7 +3289,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -3302,7 +3302,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnPolygon)
 
-    async def update_polygon_column(
+    def update_polygon_column(
         self,
         database_id: str,
         table_id: str,
@@ -3363,7 +3363,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -3376,7 +3376,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnPolygon)
 
-    async def create_relationship_column(
+    def create_relationship_column(
         self,
         database_id: str,
         table_id: str,
@@ -3447,7 +3447,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -3460,7 +3460,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnRelationship)
 
-    async def update_relationship_column(
+    def update_relationship_column(
         self,
         database_id: str,
         table_id: str,
@@ -3515,7 +3515,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -3529,7 +3529,7 @@ class TablesDB(Service):
         return self._parse_response(response, model=ColumnRelationship)
 
     @deprecated("This API has been deprecated since 1.9.0. Please use `tablesDB.create_text_column` instead.")
-    async def create_string_column(
+    def create_string_column(
         self,
         database_id: str,
         table_id: str,
@@ -3603,7 +3603,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -3617,7 +3617,7 @@ class TablesDB(Service):
         return self._parse_response(response, model=ColumnString)
 
     @deprecated("This API has been deprecated since 1.8.0. Please use `tablesDB.update_text_column` instead.")
-    async def update_string_column(
+    def update_string_column(
         self,
         database_id: str,
         table_id: str,
@@ -3684,7 +3684,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -3697,7 +3697,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnString)
 
-    async def create_text_column(
+    def create_text_column(
         self,
         database_id: str,
         table_id: str,
@@ -3763,7 +3763,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -3776,7 +3776,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnText)
 
-    async def update_text_column(
+    def update_text_column(
         self,
         database_id: str,
         table_id: str,
@@ -3836,7 +3836,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -3849,7 +3849,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnText)
 
-    async def create_url_column(
+    def create_url_column(
         self,
         database_id: str,
         table_id: str,
@@ -3910,7 +3910,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -3923,7 +3923,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnUrl)
 
-    async def update_url_column(
+    def update_url_column(
         self,
         database_id: str,
         table_id: str,
@@ -3983,7 +3983,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -3996,7 +3996,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnUrl)
 
-    async def create_varchar_column(
+    def create_varchar_column(
         self,
         database_id: str,
         table_id: str,
@@ -4068,7 +4068,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -4081,7 +4081,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnVarchar)
 
-    async def update_varchar_column(
+    def update_varchar_column(
         self,
         database_id: str,
         table_id: str,
@@ -4146,7 +4146,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -4159,7 +4159,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnVarchar)
 
-    async def get_column(
+    def get_column(
         self,
         database_id: str,
         table_id: str,
@@ -4218,7 +4218,7 @@ class TablesDB(Service):
         api_path = api_path.replace('{tableId}', self._encode_path(table_id))
         api_path = api_path.replace('{key}', self._encode_path(key))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -4286,7 +4286,7 @@ class TablesDB(Service):
 
         raise AppwriteException('Unable to match response to any known model')
 
-    async def delete_column(
+    def delete_column(
         self,
         database_id: str,
         table_id: str,
@@ -4326,7 +4326,7 @@ class TablesDB(Service):
         api_path = api_path.replace('{tableId}', self._encode_path(table_id))
         api_path = api_path.replace('{key}', self._encode_path(key))
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {
@@ -4339,7 +4339,7 @@ class TablesDB(Service):
 
         return response
 
-    async def list_indexes(
+    def list_indexes(
         self,
         database_id: str,
         table_id: str,
@@ -4383,7 +4383,7 @@ class TablesDB(Service):
         if total is not None:
             api_params['total'] = self._normalize_value(total)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -4395,7 +4395,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnIndexList)
 
-    async def create_index(
+    def create_index(
         self,
         database_id: str,
         table_id: str,
@@ -4463,7 +4463,7 @@ class TablesDB(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -4476,7 +4476,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnIndex)
 
-    async def get_index(
+    def get_index(
         self,
         database_id: str,
         table_id: str,
@@ -4516,7 +4516,7 @@ class TablesDB(Service):
         api_path = api_path.replace('{tableId}', self._encode_path(table_id))
         api_path = api_path.replace('{key}', self._encode_path(key))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -4528,7 +4528,7 @@ class TablesDB(Service):
 
         return self._parse_response(response, model=ColumnIndex)
 
-    async def delete_index(
+    def delete_index(
         self,
         database_id: str,
         table_id: str,
@@ -4568,7 +4568,7 @@ class TablesDB(Service):
         api_path = api_path.replace('{tableId}', self._encode_path(table_id))
         api_path = api_path.replace('{key}', self._encode_path(key))
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {
@@ -4581,7 +4581,7 @@ class TablesDB(Service):
 
         return response
 
-    async def list_rows(
+    def list_rows(
         self,
         database_id: str,
         table_id: str,
@@ -4641,7 +4641,7 @@ class TablesDB(Service):
         if ttl is not None:
             api_params['ttl'] = self._normalize_value(ttl)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -4653,7 +4653,7 @@ class TablesDB(Service):
 
         return RowList.with_data(response, model_type)
 
-    async def create_row(
+    def create_row(
         self,
         database_id: str,
         table_id: str,
@@ -4713,7 +4713,7 @@ class TablesDB(Service):
         if transaction_id is not None:
             api_params['transactionId'] = self._normalize_value(transaction_id)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -4726,7 +4726,7 @@ class TablesDB(Service):
 
         return Row.with_data(response, model_type)
 
-    async def create_rows(
+    def create_rows(
         self,
         database_id: str,
         table_id: str,
@@ -4775,7 +4775,7 @@ class TablesDB(Service):
         if transaction_id is not None:
             api_params['transactionId'] = self._normalize_value(transaction_id)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -4788,7 +4788,7 @@ class TablesDB(Service):
 
         return RowList.with_data(response, model_type)
 
-    async def upsert_rows(
+    def upsert_rows(
         self,
         database_id: str,
         table_id: str,
@@ -4837,7 +4837,7 @@ class TablesDB(Service):
         if transaction_id is not None:
             api_params['transactionId'] = self._normalize_value(transaction_id)
 
-        response = await self.client.call(
+        response = self.client.call(
             'put',
             api_path,
             {
@@ -4850,7 +4850,7 @@ class TablesDB(Service):
 
         return RowList.with_data(response, model_type)
 
-    async def update_rows(
+    def update_rows(
         self,
         database_id: str,
         table_id: str,
@@ -4903,7 +4903,7 @@ class TablesDB(Service):
         if transaction_id is not None:
             api_params['transactionId'] = self._normalize_value(transaction_id)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -4916,7 +4916,7 @@ class TablesDB(Service):
 
         return RowList.with_data(response, model_type)
 
-    async def delete_rows(
+    def delete_rows(
         self,
         database_id: str,
         table_id: str,
@@ -4964,7 +4964,7 @@ class TablesDB(Service):
         if transaction_id is not None:
             api_params['transactionId'] = self._normalize_value(transaction_id)
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {
@@ -4977,7 +4977,7 @@ class TablesDB(Service):
 
         return RowList.with_data(response, model_type)
 
-    async def create_query(
+    def create_query(
         self,
         database_id: str,
         table_id: str,
@@ -5035,7 +5035,7 @@ class TablesDB(Service):
         if ttl is not None:
             api_params['ttl'] = self._normalize_value(ttl)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -5048,7 +5048,7 @@ class TablesDB(Service):
 
         return RowList.with_data(response, model_type)
 
-    async def get_row(
+    def get_row(
         self,
         database_id: str,
         table_id: str,
@@ -5102,7 +5102,7 @@ class TablesDB(Service):
         if transaction_id is not None:
             api_params['transactionId'] = self._normalize_value(transaction_id)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -5114,7 +5114,7 @@ class TablesDB(Service):
 
         return Row.with_data(response, model_type)
 
-    async def upsert_row(
+    def upsert_row(
         self,
         database_id: str,
         table_id: str,
@@ -5173,7 +5173,7 @@ class TablesDB(Service):
         if transaction_id is not None:
             api_params['transactionId'] = self._normalize_value(transaction_id)
 
-        response = await self.client.call(
+        response = self.client.call(
             'put',
             api_path,
             {
@@ -5186,7 +5186,7 @@ class TablesDB(Service):
 
         return Row.with_data(response, model_type)
 
-    async def update_row(
+    def update_row(
         self,
         database_id: str,
         table_id: str,
@@ -5245,7 +5245,7 @@ class TablesDB(Service):
         if transaction_id is not None:
             api_params['transactionId'] = self._normalize_value(transaction_id)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -5258,7 +5258,7 @@ class TablesDB(Service):
 
         return Row.with_data(response, model_type)
 
-    async def delete_row(
+    def delete_row(
         self,
         database_id: str,
         table_id: str,
@@ -5303,7 +5303,7 @@ class TablesDB(Service):
         if transaction_id is not None:
             api_params['transactionId'] = self._normalize_value(transaction_id)
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {
@@ -5316,7 +5316,7 @@ class TablesDB(Service):
 
         return response
 
-    async def decrement_row_column(
+    def decrement_row_column(
         self,
         database_id: str,
         table_id: str,
@@ -5381,7 +5381,7 @@ class TablesDB(Service):
         if transaction_id is not None:
             api_params['transactionId'] = self._normalize_value(transaction_id)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -5394,7 +5394,7 @@ class TablesDB(Service):
 
         return Row.with_data(response, model_type)
 
-    async def increment_row_column(
+    def increment_row_column(
         self,
         database_id: str,
         table_id: str,
@@ -5459,7 +5459,7 @@ class TablesDB(Service):
         if transaction_id is not None:
             api_params['transactionId'] = self._normalize_value(transaction_id)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {

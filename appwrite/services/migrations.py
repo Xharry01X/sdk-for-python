@@ -17,7 +17,7 @@ class Migrations(Service):
     def __init__(self, client) -> None:
         super(Migrations, self).__init__(client)
 
-    async def list(
+    def list(
         self,
         queries: Optional[List[str]] = None,
         search: Optional[str] = None,
@@ -54,7 +54,7 @@ class Migrations(Service):
         if total is not None:
             api_params['total'] = self._normalize_value(total)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -66,7 +66,7 @@ class Migrations(Service):
 
         return self._parse_response(response, model=MigrationList)
 
-    async def create_appwrite_migration(
+    def create_appwrite_migration(
         self,
         resources: List[AppwriteMigrationResource],
         endpoint: str,
@@ -117,7 +117,7 @@ class Migrations(Service):
         if on_duplicate is not None:
             api_params['onDuplicate'] = self._normalize_value(on_duplicate)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -130,7 +130,7 @@ class Migrations(Service):
 
         return self._parse_response(response, model=Migration)
 
-    async def create_csv_export(
+    def create_csv_export(
         self,
         database_id: str,
         collection_id: str,
@@ -205,7 +205,7 @@ class Migrations(Service):
         if notify is not None:
             api_params['notify'] = self._normalize_value(notify)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -218,7 +218,7 @@ class Migrations(Service):
 
         return self._parse_response(response, model=Migration)
 
-    async def create_csv_import(
+    def create_csv_import(
         self,
         bucket_id: str,
         file_id: str,
@@ -274,7 +274,7 @@ class Migrations(Service):
         if on_duplicate is not None:
             api_params['onDuplicate'] = self._normalize_value(on_duplicate)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -287,7 +287,7 @@ class Migrations(Service):
 
         return self._parse_response(response, model=Migration)
 
-    async def create_firebase_migration(
+    def create_firebase_migration(
         self,
         resources: List[FirebaseMigrationResource],
         service_account: str,
@@ -321,7 +321,7 @@ class Migrations(Service):
         api_params['resources'] = self._normalize_value(resources)
         api_params['serviceAccount'] = self._normalize_value(service_account)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -334,7 +334,7 @@ class Migrations(Service):
 
         return self._parse_response(response, model=Migration)
 
-    async def create_json_export(
+    def create_json_export(
         self,
         database_id: str,
         collection_id: str,
@@ -389,7 +389,7 @@ class Migrations(Service):
         if notify is not None:
             api_params['notify'] = self._normalize_value(notify)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -402,7 +402,7 @@ class Migrations(Service):
 
         return self._parse_response(response, model=Migration)
 
-    async def create_json_import(
+    def create_json_import(
         self,
         bucket_id: str,
         file_id: str,
@@ -458,7 +458,7 @@ class Migrations(Service):
         if on_duplicate is not None:
             api_params['onDuplicate'] = self._normalize_value(on_duplicate)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -471,7 +471,7 @@ class Migrations(Service):
 
         return self._parse_response(response, model=Migration)
 
-    async def create_n_host_migration(
+    def create_n_host_migration(
         self,
         resources: List[NHostMigrationResource],
         subdomain: str,
@@ -540,7 +540,7 @@ class Migrations(Service):
         if port is not None:
             api_params['port'] = self._normalize_value(port)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -553,7 +553,7 @@ class Migrations(Service):
 
         return self._parse_response(response, model=Migration)
 
-    async def create_supabase_migration(
+    def create_supabase_migration(
         self,
         resources: List[SupabaseMigrationResource],
         endpoint: str,
@@ -616,7 +616,7 @@ class Migrations(Service):
         if port is not None:
             api_params['port'] = self._normalize_value(port)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -629,7 +629,7 @@ class Migrations(Service):
 
         return self._parse_response(response, model=Migration)
 
-    async def get(
+    def get(
         self,
         migration_id: str,
     ) -> Migration:
@@ -657,7 +657,7 @@ class Migrations(Service):
             raise AppwriteException('Missing required parameter: "migration_id"')
         api_path = api_path.replace('{migrationId}', self._encode_path(migration_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -669,7 +669,7 @@ class Migrations(Service):
 
         return self._parse_response(response, model=Migration)
 
-    async def retry(
+    def retry(
         self,
         migration_id: str,
     ) -> Migration:
@@ -697,7 +697,7 @@ class Migrations(Service):
             raise AppwriteException('Missing required parameter: "migration_id"')
         api_path = api_path.replace('{migrationId}', self._encode_path(migration_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -710,7 +710,7 @@ class Migrations(Service):
 
         return self._parse_response(response, model=Migration)
 
-    async def delete(
+    def delete(
         self,
         migration_id: str,
     ) -> Dict[str, Any]:
@@ -738,7 +738,7 @@ class Migrations(Service):
             raise AppwriteException('Missing required parameter: "migration_id"')
         api_path = api_path.replace('{migrationId}', self._encode_path(migration_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {

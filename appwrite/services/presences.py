@@ -12,7 +12,7 @@ class Presences(Service):
     def __init__(self, client) -> None:
         super(Presences, self).__init__(client)
 
-    async def list(
+    def list(
         self,
         queries: Optional[List[str]] = None,
         total: Optional[bool] = None,
@@ -49,7 +49,7 @@ class Presences(Service):
         if ttl is not None:
             api_params['ttl'] = self._normalize_value(ttl)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -61,7 +61,7 @@ class Presences(Service):
 
         return self._parse_response(response, model=PresenceList)
 
-    async def get(
+    def get(
         self,
         presence_id: str,
     ) -> Presence:
@@ -89,7 +89,7 @@ class Presences(Service):
             raise AppwriteException('Missing required parameter: "presence_id"')
         api_path = api_path.replace('{presenceId}', self._encode_path(presence_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -101,7 +101,7 @@ class Presences(Service):
 
         return self._parse_response(response, model=Presence)
 
-    async def upsert(
+    def upsert(
         self,
         presence_id: str,
         user_id: str,
@@ -156,7 +156,7 @@ class Presences(Service):
         if metadata is not None:
             api_params['metadata'] = self._normalize_value(metadata)
 
-        response = await self.client.call(
+        response = self.client.call(
             'put',
             api_path,
             {
@@ -169,7 +169,7 @@ class Presences(Service):
 
         return self._parse_response(response, model=Presence)
 
-    async def update(
+    def update(
         self,
         presence_id: str,
         user_id: str,
@@ -228,7 +228,7 @@ class Presences(Service):
         if purge is not None:
             api_params['purge'] = self._normalize_value(purge)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -241,7 +241,7 @@ class Presences(Service):
 
         return self._parse_response(response, model=Presence)
 
-    async def delete(
+    def delete(
         self,
         presence_id: str,
     ) -> Dict[str, Any]:
@@ -269,7 +269,7 @@ class Presences(Service):
             raise AppwriteException('Missing required parameter: "presence_id"')
         api_path = api_path.replace('{presenceId}', self._encode_path(presence_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {

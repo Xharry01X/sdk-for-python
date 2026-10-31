@@ -13,7 +13,7 @@ Appwrite is an open-source backend as a service server that abstracts and simpli
 
 ## Installation
 
-Requires Python 3.11 or later. Install the [`appwrite`](https://pypi.org/project/appwrite/) package from PyPI:
+Requires Python 3.10 or later. Install the [`appwrite`](https://pypi.org/project/appwrite/) package from PyPI:
 
 ```bash
 pip install appwrite
@@ -27,7 +27,15 @@ uv add appwrite
 
 ## Getting started
 
-Every API call is asynchronous, so every service method returns a coroutine you `await`.
+### Requirements and installation
+
+Use Python 3.10 or later. Create and activate a virtual environment with that interpreter, then install the SDK:
+
+```sh
+python -m pip install --upgrade appwrite
+```
+
+The SDK requires `requests>=2.34.2,<3` and `urllib3>=2.8.0,<3`. Update application pins or constraints that exclude these versions.
 
 ### Initialize the client
 
@@ -46,31 +54,24 @@ API keys grant server-level access to your project. Keep them out of client-side
 
 ### Make a request
 
-Create a service object with the client and await any of its methods. Every method returns a typed Pydantic model, so response fields are available as attributes.
+Create a service object with the client and call any of its methods. Every method returns a typed Pydantic model, so response fields are available as attributes.
 
 ```python
-import asyncio
-
 from appwrite.id import ID
 from appwrite.services.users import Users
 
+users = Users(client)
 
-async def main():
-    users = Users(client)
+user = users.create(
+    user_id=ID.unique(),
+    email='email@example.com',
+    password='password',
+    name="Walter O'Brien",
+)
 
-    user = await users.create(
-        user_id=ID.unique(),
-        email='email@example.com',
-        password='password',
-        name="Walter O'Brien",
-    )
-
-    print(user.id)
-    print(user.name)
-    print(user.to_dict())
-
-
-asyncio.run(main())
+print(user.id)
+print(user.name)
+print(user.to_dict())
 ```
 
 See the [API reference](https://appwrite.io/docs/references/cloud/server-python/users) for every service and method.
@@ -80,7 +81,6 @@ See the [API reference](https://appwrite.io/docs/references/cloud/server-python/
 Use `TablesDB` to read and write rows. Pass a Pydantic model as `model_type` to get typed row data back; without it, `row.data` is a `dict`.
 
 ```python
-import asyncio
 from typing import Optional
 
 from pydantic import BaseModel
@@ -96,32 +96,28 @@ class Post(BaseModel):
     excerpt: Optional[str] = None
 
 
-async def main():
-    tables_db = TablesDB(client)
+tables_db = TablesDB(client)
 
-    row = await tables_db.create_row(
-        database_id='<DATABASE_ID>',
-        table_id='<TABLE_ID>',
-        row_id=ID.unique(),
-        data={'title': 'Hello, world', 'published': True},
-        model_type=Post,
-    )
+row = tables_db.create_row(
+    database_id='<DATABASE_ID>',
+    table_id='<TABLE_ID>',
+    row_id=ID.unique(),
+    data={'title': 'Hello, world', 'published': True},
+    model_type=Post,
+)
 
-    print(row.id)
+print(row.id)
+print(row.data.title)
+
+result = tables_db.list_rows(
+    database_id='<DATABASE_ID>',
+    table_id='<TABLE_ID>',
+    queries=[Query.equal('published', True), Query.limit(25)],
+    model_type=Post,
+)
+
+for row in result.rows:
     print(row.data.title)
-
-    result = await tables_db.list_rows(
-        database_id='<DATABASE_ID>',
-        table_id='<TABLE_ID>',
-        queries=[Query.equal('published', True), Query.limit(25)],
-        model_type=Post,
-    )
-
-    for row in result.rows:
-        print(row.data.title)
-
-
-asyncio.run(main())
 ```
 
 ### Handle errors
@@ -129,46 +125,12 @@ asyncio.run(main())
 Failed requests raise `AppwriteException`, which carries `message`, `code`, `type` and `response`.
 
 ```python
-import asyncio
-
 from appwrite.exception import AppwriteException
-from appwrite.services.users import Users
 
-
-async def main():
-    users = Users(client)
-
-    try:
-        user = await users.get(user_id='<USER_ID>')
-    except AppwriteException as error:
-        print(error.code, error.type, error.message)
-
-
-asyncio.run(main())
-```
-
-### Close the client
-
-The client keeps a pooled HTTP connection open. Close it when you are done, or use it as an async context manager.
-
-```python
-async def main():
-    await client.aclose()
-
-
-asyncio.run(main())
-```
-
-```python
-from appwrite.client import Client
-
-
-async def main():
-    async with Client() as client:
-        ...
-
-
-asyncio.run(main())
+try:
+    user = users.get(user_id='<USER_ID>')
+except AppwriteException as error:
+    print(error.code, error.type, error.message)
 ```
 
 ### Self-hosted Appwrite
@@ -188,37 +150,57 @@ client.set_self_signed()
 - [Discord community](https://appwrite.io/discord)
 - [Appwrite Python playground](https://github.com/appwrite/playground-for-python)
 
-## Synchronous usage
+## Async usage
 
-The `appwrite` package is asynchronous. If you can't use async in your project, generate a synchronous mirror of the SDK instead: install [unasync](https://pypi.org/project/unasync/) and run `python make_sync.py`. This creates an `appwrite_sync` package with the identical API — every service method is a plain function, so nothing is awaited.
+The client above is synchronous, which is the default and needs no extra setup. The SDK also ships an asynchronous client, which is opt-in and requires Python 3.11 or later:
 
-```python
-from appwrite_sync.client import Client
-from appwrite_sync.id import ID
-from appwrite_sync.services.users import Users
-
-client = Client()
-client.set_endpoint('https://<REGION>.cloud.appwrite.io/v1')
-client.set_project('<PROJECT_ID>')
-client.set_key('<API_KEY>')
-
-users = Users(client)
-
-user = users.create(
-    user_id=ID.unique(),
-    email='email@example.com',
-    password='password',
-    name="Walter O'Brien",
-)
-
-print(user.id)
-print(user.name)
-print(user.to_dict())
+```bash
+pip install appwrite[async]
 ```
 
-The sync client can also be used as a context manager — `with Client() as client:` closes the pooled HTTP connection on exit.
+It exposes the same API through `AsyncClient` and the `Async*` services. Every method is a coroutine, so it has to be awaited:
 
-`appwrite_sync` is generated code and gitignored. Run `python make_sync.py` again after pulling changes, and before building or publishing a synchronous distribution.
+```python
+import asyncio
+
+from appwrite.async_client import AsyncClient
+from appwrite.async_services.users import AsyncUsers
+from appwrite.id import ID
+
+
+async def main():
+    client = AsyncClient()
+    client.set_endpoint('https://<REGION>.cloud.appwrite.io/v1')
+    client.set_project('<PROJECT_ID>')
+    client.set_key('<API_KEY>')
+
+    users = AsyncUsers(client)
+
+    user = await users.create(
+        user_id=ID.unique(),
+        email='email@example.com',
+        password='password',
+        name="Walter O'Brien",
+    )
+
+    print(user.id)
+    print(user.name)
+    print(user.to_dict())
+
+    await client.aclose()
+
+
+asyncio.run(main())
+```
+
+The asynchronous client can also be used as an async context manager, which closes the pooled HTTP connection on exit:
+
+```python
+async with AsyncClient() as client:
+    ...
+```
+
+Both clients talk to the same API and expose the same methods, so you can move between them without changing your integration. The asynchronous one runs on asyncio and trio.
 
 ## Contribution
 

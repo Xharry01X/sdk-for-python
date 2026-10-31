@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-* Added: make_sync.py code generator that mirrors the async appwrite package into a synchronous appwrite_sync package, with a matching test_sync suite
+* Added: `AsyncClient` and the `Async*` services, an asynchronous client that ships next to the synchronous one and is opt-in through the `async` extra
+* Added: `make_sync.py` code generator that mirrors the async appwrite package into a synchronous appwrite_sync package, with a matching test_sync suite
 * Added: the generated `appwrite_sync` package and `test_sync` suite are gitignored; regenerate with `pip install unasync` and `python make_sync.py` after pulling changes
 
 ## 27.1.0

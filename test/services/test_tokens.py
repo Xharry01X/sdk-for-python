@@ -1,7 +1,8 @@
 import json
-import httpx2
-import respx
+import re
+import requests_mock
 import unittest
+from urllib.parse import parse_qs, unquote, urlsplit
 
 from appwrite.client import Client
 from appwrite.input_file import InputFile
@@ -9,35 +10,48 @@ from appwrite.models import *
 from appwrite.services.tokens import Tokens
 
 
-class TokensServiceTest(unittest.IsolatedAsyncioTestCase):
+class TokensServiceTest(unittest.TestCase):
 
-    async def asyncSetUp(self):
+    def setUp(self):
         self.client = Client()
         self.tokens = Tokens(self.client)
 
-    async def asyncTearDown(self):
-        await self.client.aclose()
-
-    @respx.mock
-    async def test_list(self):
+    @requests_mock.Mocker()
+    def test_list(self, m):
         data = {
             "total": 5.0,
             "tokens": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.tokens.list(
+        response = self.tokens.list(
             '<BUCKET_ID>',
             '<FILE_ID>',
             queries=[],
             total=False,
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/tokens/buckets/<BUCKET_ID>/files/<FILE_ID>',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(
+            sent,
+            {
+                'total': ['false'],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_create_file_token(self):
+    @requests_mock.Mocker()
+    def test_create_file_token(self, m):
         data = {
             "$id": "bb8ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -48,18 +62,34 @@ class TokensServiceTest(unittest.IsolatedAsyncioTestCase):
             "accessedAt": "2020-10-15T06:38:00.000+00:00",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.tokens.create_file_token(
+        response = self.tokens.create_file_token(
             '<BUCKET_ID>',
             '<FILE_ID>',
             expire='2020-10-15T06:38:00.000+00:00',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/tokens/buckets/<BUCKET_ID>/files/<FILE_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'expire': '2020-10-15T06:38:00.000+00:00',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_get(self):
+    @requests_mock.Mocker()
+    def test_get(self, m):
         data = {
             "$id": "bb8ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -70,16 +100,27 @@ class TokensServiceTest(unittest.IsolatedAsyncioTestCase):
             "accessedAt": "2020-10-15T06:38:00.000+00:00",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.tokens.get(
+        response = self.tokens.get(
             '<TOKEN_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/tokens/<TOKEN_ID>',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_update(self):
+    @requests_mock.Mocker()
+    def test_update(self, m):
         data = {
             "$id": "bb8ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -90,23 +131,50 @@ class TokensServiceTest(unittest.IsolatedAsyncioTestCase):
             "accessedAt": "2020-10-15T06:38:00.000+00:00",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PATCH',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.tokens.update(
+        response = self.tokens.update(
             '<TOKEN_ID>',
             expire='2020-10-15T06:38:00.000+00:00',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/tokens/<TOKEN_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'expire': '2020-10-15T06:38:00.000+00:00',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_delete(self):
+    @requests_mock.Mocker()
+    def test_delete(self, m):
         data = ''
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'DELETE',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.tokens.delete(
+        response = self.tokens.delete(
             '<TOKEN_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/tokens/<TOKEN_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(sent, {})
         self.assertEqual(response, data)

@@ -1,7 +1,8 @@
 import json
-import httpx2
-import respx
+import re
+import requests_mock
 import unittest
+from urllib.parse import parse_qs, unquote, urlsplit
 
 from appwrite.client import Client
 from appwrite.input_file import InputFile
@@ -9,43 +10,60 @@ from appwrite.models import *
 from appwrite.services.oauth2 import Oauth2
 
 
-class Oauth2ServiceTest(unittest.IsolatedAsyncioTestCase):
+class Oauth2ServiceTest(unittest.TestCase):
 
-    async def asyncSetUp(self):
+    def setUp(self):
         self.client = Client()
         self.oauth2 = Oauth2(self.client)
 
-    async def asyncTearDown(self):
-        await self.client.aclose()
-
-
-    @respx.mock
-    async def test_approve(self):
+    @requests_mock.Mocker()
+    def test_approve(self, m):
         data = {
             "redirectUrl": "https:\/\/example.com\/callback?code=abcde&state=fghij",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.oauth2.approve(
+        response = self.oauth2.approve(
             '<GRANT_ID>',
             authorization_details='<AUTHORIZATION_DETAILS>',
             scope='<SCOPE>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/oauth2//approve',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'grant_id': '<GRANT_ID>',
+                'authorization_details': '<AUTHORIZATION_DETAILS>',
+                'scope': '<SCOPE>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_authorize(self):
+    @requests_mock.Mocker()
+    def test_authorize(self, m):
         data = {
             "grantId": "5e5ea5c16897e",
             "redirectUrl": "https:\/\/example.com\/callback?code=abcde&state=fghij",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.oauth2.authorize(
+        response = self.oauth2.authorize(
             client_id='<CLIENT_ID>',
             redirect_uri='https://example.com',
             response_type='response_type',
@@ -61,19 +79,47 @@ class Oauth2ServiceTest(unittest.IsolatedAsyncioTestCase):
             audience='<AUDIENCE>',
             request_uri='<REQUEST_URI>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/oauth2//authorize',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(
+            sent,
+            {
+                'client_id': ['<CLIENT_ID>'],
+                'redirect_uri': ['https://example.com'],
+                'response_type': ['response_type'],
+                'scope': ['<SCOPE>'],
+                'state': ['<STATE>'],
+                'nonce': ['<NONCE>'],
+                'code_challenge': ['<CODE_CHALLENGE>'],
+                'code_challenge_method': ['s256'],
+                'prompt': ['<PROMPT>'],
+                'max_age': ['1'],
+                'authorization_details': ['<AUTHORIZATION_DETAILS>'],
+                'audience': ['<AUDIENCE>'],
+                'request_uri': ['<REQUEST_URI>'],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_authorize_post(self):
+    @requests_mock.Mocker()
+    def test_authorize_post(self, m):
         data = {
             "grantId": "5e5ea5c16897e",
             "redirectUrl": "https:\/\/example.com\/callback?code=abcde&state=fghij",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.oauth2.authorize_post(
+        response = self.oauth2.authorize_post(
             client_id='<CLIENT_ID>',
             redirect_uri='https://example.com',
             response_type='response_type',
@@ -89,10 +135,36 @@ class Oauth2ServiceTest(unittest.IsolatedAsyncioTestCase):
             audience='<AUDIENCE>',
             request_uri='<REQUEST_URI>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/oauth2//authorize',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'client_id': '<CLIENT_ID>',
+                'redirect_uri': 'https://example.com',
+                'response_type': 'response_type',
+                'scope': '<SCOPE>',
+                'state': '<STATE>',
+                'nonce': '<NONCE>',
+                'code_challenge': '<CODE_CHALLENGE>',
+                'code_challenge_method': 's256',
+                'prompt': '<PROMPT>',
+                'max_age': 1,
+                'authorization_details': '<AUTHORIZATION_DETAILS>',
+                'resource': [],
+                'audience': '<AUDIENCE>',
+                'request_uri': '<REQUEST_URI>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_create_device_authorization(self):
+    @requests_mock.Mocker()
+    def test_create_device_authorization(self, m):
         data = {
             "device_code": "5f3c8d2a1b9e4f7a6c8b2d1e9f4a7b3c5d8e1f2a9b4c7d6e3f5a8b1c4d7e2f9a",
             "user_code": "ABCD-EFGH",
@@ -102,20 +174,40 @@ class Oauth2ServiceTest(unittest.IsolatedAsyncioTestCase):
             "interval": 5.0,
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.oauth2.create_device_authorization(
+        response = self.oauth2.create_device_authorization(
             client_id='<CLIENT_ID>',
             scope='<SCOPE>',
             authorization_details='<AUTHORIZATION_DETAILS>',
             resource=[],
             audience='<AUDIENCE>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/oauth2//device_authorization',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'client_id': '<CLIENT_ID>',
+                'scope': '<SCOPE>',
+                'authorization_details': '<AUTHORIZATION_DETAILS>',
+                'resource': [],
+                'audience': '<AUDIENCE>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_create_grant(self):
+    @requests_mock.Mocker()
+    def test_create_grant(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -131,16 +223,32 @@ class Oauth2ServiceTest(unittest.IsolatedAsyncioTestCase):
             "expire": "2020-10-15T06:38:00.000+00:00",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.oauth2.create_grant(
+        response = self.oauth2.create_grant(
             '<USER_CODE>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/oauth2//grants',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'user_code': '<USER_CODE>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_get_grant(self):
+    @requests_mock.Mocker()
+    def test_get_grant(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -156,59 +264,110 @@ class Oauth2ServiceTest(unittest.IsolatedAsyncioTestCase):
             "expire": "2020-10-15T06:38:00.000+00:00",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.oauth2.get_grant(
+        response = self.oauth2.get_grant(
             '<GRANT_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/oauth2//grants/<GRANT_ID>',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_introspect(self):
+    @requests_mock.Mocker()
+    def test_introspect(self, m):
         data = {
             "active": True,
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.oauth2.introspect(
+        response = self.oauth2.introspect(
             '<TOKEN>',
             token_type_hint='access_token',
             client_id='<CLIENT_ID>',
             client_secret='<CLIENT_SECRET>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/oauth2//introspect',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'token': '<TOKEN>',
+                'token_type_hint': 'access_token',
+                'client_id': '<CLIENT_ID>',
+                'client_secret': '<CLIENT_SECRET>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_list_organizations(self):
+    @requests_mock.Mocker()
+    def test_list_organizations(self, m):
         data = {
             "total": 5.0,
             "organizations": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.oauth2.list_organizations(
+        response = self.oauth2.list_organizations(
             limit=1,
             offset=1,
             search='<SEARCH>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/oauth2//organizations',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(
+            sent,
+            {
+                'limit': ['1'],
+                'offset': ['1'],
+                'search': ['<SEARCH>'],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_create_par(self):
+    @requests_mock.Mocker()
+    def test_create_par(self, m):
         data = {
             "request_uri": "urn:appwrite:oauth2:request:5e5ea5c16897e",
             "expires_in": 600.0,
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.oauth2.create_par(
+        response = self.oauth2.create_par(
             '<CLIENT_ID>',
             'https://example.com',
             'code',
@@ -223,56 +382,134 @@ class Oauth2ServiceTest(unittest.IsolatedAsyncioTestCase):
             resource=[],
             audience='<AUDIENCE>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/oauth2//par',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'client_id': '<CLIENT_ID>',
+                'redirect_uri': 'https://example.com',
+                'response_type': 'code',
+                'scope': '<SCOPE>',
+                'state': '<STATE>',
+                'nonce': '<NONCE>',
+                'code_challenge': '<CODE_CHALLENGE>',
+                'code_challenge_method': 's256',
+                'prompt': '<PROMPT>',
+                'max_age': 1,
+                'authorization_details': '<AUTHORIZATION_DETAILS>',
+                'resource': [],
+                'audience': '<AUDIENCE>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_list_projects(self):
+    @requests_mock.Mocker()
+    def test_list_projects(self, m):
         data = {
             "total": 5.0,
             "projects": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.oauth2.list_projects(
+        response = self.oauth2.list_projects(
             limit=1,
             offset=1,
             search='<SEARCH>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/oauth2//projects',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(
+            sent,
+            {
+                'limit': ['1'],
+                'offset': ['1'],
+                'search': ['<SEARCH>'],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_reject(self):
+    @requests_mock.Mocker()
+    def test_reject(self, m):
         data = {
             "redirectUrl": "https:\/\/example.com\/callback?error=access_denied&state=fghij",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.oauth2.reject(
+        response = self.oauth2.reject(
             '<GRANT_ID>',
+        )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/oauth2//reject',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'grant_id': '<GRANT_ID>',
+            },
         )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_revoke(self):
+    @requests_mock.Mocker()
+    def test_revoke(self, m):
         data = ''
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.oauth2.revoke(
+        response = self.oauth2.revoke(
             '<TOKEN>',
             token_type_hint='access_token',
             client_id='<CLIENT_ID>',
             client_secret='<CLIENT_SECRET>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/oauth2//revoke',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'token': '<TOKEN>',
+                'token_type_hint': 'access_token',
+                'client_id': '<CLIENT_ID>',
+                'client_secret': '<CLIENT_SECRET>',
+            },
+        )
         self.assertEqual(response, data)
 
-    @respx.mock
-    async def test_create_token(self):
+    @requests_mock.Mocker()
+    def test_create_token(self, m):
         data = {
             "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...",
             "token_type": "Bearer",
@@ -281,10 +518,13 @@ class Oauth2ServiceTest(unittest.IsolatedAsyncioTestCase):
             "scope": "openid email profile",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.oauth2.create_token(
+        response = self.oauth2.create_token(
             '<GRANT_TYPE>',
             code='<CODE>',
             refresh_token='<REFRESH_TOKEN>',
@@ -295,5 +535,27 @@ class Oauth2ServiceTest(unittest.IsolatedAsyncioTestCase):
             redirect_uri='https://example.com',
             resource=[],
             audience='<AUDIENCE>',
+        )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/oauth2//token',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'grant_type': '<GRANT_TYPE>',
+                'code': '<CODE>',
+                'refresh_token': '<REFRESH_TOKEN>',
+                'device_code': '<DEVICE_CODE>',
+                'client_id': '<CLIENT_ID>',
+                'client_secret': '<CLIENT_SECRET>',
+                'code_verifier': '<CODE_VERIFIER>',
+                'redirect_uri': 'https://example.com',
+                'resource': [],
+                'audience': '<AUDIENCE>',
+            },
         )
         self.assertEqual(response.to_dict(), data)

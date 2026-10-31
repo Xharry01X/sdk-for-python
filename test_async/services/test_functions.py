@@ -1,0 +1,824 @@
+import json
+import httpx2
+import respx
+import unittest
+
+from appwrite.async_client import AsyncClient
+from appwrite.input_file import InputFile
+from appwrite.models import *
+from appwrite.async_services.functions import AsyncFunctions
+
+
+class AsyncFunctionsServiceTest(unittest.IsolatedAsyncioTestCase):
+
+    async def asyncSetUp(self):
+        self.client = AsyncClient()
+        self.functions = AsyncFunctions(self.client)
+
+    async def asyncTearDown(self):
+        await self.client.aclose()
+
+    @respx.mock
+    async def test_list(self):
+        data = {
+            "total": 5.0,
+            "functions": [],
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.list(
+            queries=[],
+            search='<SEARCH>',
+            total=False,
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_create(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "execute": [],
+            "name": "My Function",
+            "description": "Sends a welcome email to newly registered users.",
+            "enabled": True,
+            "live": True,
+            "logging": True,
+            "runtime": "python-3.8",
+            "deploymentRetention": 7.0,
+            "deploymentId": "5e5ea5c16897e",
+            "deploymentCreatedAt": "2020-10-15T06:38:00.000+00:00",
+            "latestDeploymentId": "5e5ea5c16897e",
+            "latestDeploymentCreatedAt": "2020-10-15T06:38:00.000+00:00",
+            "latestDeploymentStatus": "ready",
+            "scopes": [],
+            "vars": [],
+            "events": [],
+            "schedule": "5 4 * * *",
+            "timeout": 300.0,
+            "entrypoint": "index.js",
+            "commands": "npm install",
+            "version": "v2",
+            "installationId": "6m40at4ejk5h2u9s1hboo",
+            "providerRepositoryId": "appwrite",
+            "providerBranch": "main",
+            "providerRootDirectory": "functions\/helloWorld",
+            "providerSilentMode": True,
+            "providerBranches": [],
+            "providerPaths": [],
+            "buildSpecification": "s-1vcpu-512mb",
+            "runtimeSpecification": "s-1vcpu-512mb",
+            "emailEnabled": True,
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.create(
+            '<FUNCTION_ID>',
+            '<NAME>',
+            'node-14.5',
+            execute=[],
+            events=[],
+            schedule='0 0 * * *',
+            timeout=1,
+            enabled=False,
+            logging=False,
+            entrypoint='<ENTRYPOINT>',
+            commands='<COMMANDS>',
+            scopes=[],
+            installation_id='<INSTALLATION_ID>',
+            provider_repository_id='<PROVIDER_REPOSITORY_ID>',
+            provider_branch='<PROVIDER_BRANCH>',
+            provider_silent_mode=False,
+            provider_root_directory='<PROVIDER_ROOT_DIRECTORY>',
+            provider_branches=[],
+            provider_paths=[],
+            build_specification='s-1vcpu-512mb',
+            runtime_specification='s-1vcpu-512mb',
+            deployment_retention=1,
+            interval=1,
+            description='<DESCRIPTION>',
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_list_runtimes(self):
+        data = {
+            "total": 5.0,
+            "runtimes": [],
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.list_runtimes(
+            total=False,
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_list_specifications(self):
+        data = {
+            "total": 5.0,
+            "specifications": [],
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.list_specifications(
+            type='runtimes',
+            total=False,
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_get(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "execute": [],
+            "name": "My Function",
+            "description": "Sends a welcome email to newly registered users.",
+            "enabled": True,
+            "live": True,
+            "logging": True,
+            "runtime": "python-3.8",
+            "deploymentRetention": 7.0,
+            "deploymentId": "5e5ea5c16897e",
+            "deploymentCreatedAt": "2020-10-15T06:38:00.000+00:00",
+            "latestDeploymentId": "5e5ea5c16897e",
+            "latestDeploymentCreatedAt": "2020-10-15T06:38:00.000+00:00",
+            "latestDeploymentStatus": "ready",
+            "scopes": [],
+            "vars": [],
+            "events": [],
+            "schedule": "5 4 * * *",
+            "timeout": 300.0,
+            "entrypoint": "index.js",
+            "commands": "npm install",
+            "version": "v2",
+            "installationId": "6m40at4ejk5h2u9s1hboo",
+            "providerRepositoryId": "appwrite",
+            "providerBranch": "main",
+            "providerRootDirectory": "functions\/helloWorld",
+            "providerSilentMode": True,
+            "providerBranches": [],
+            "providerPaths": [],
+            "buildSpecification": "s-1vcpu-512mb",
+            "runtimeSpecification": "s-1vcpu-512mb",
+            "emailEnabled": True,
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.get(
+            '<FUNCTION_ID>',
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_update(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "execute": [],
+            "name": "My Function",
+            "description": "Sends a welcome email to newly registered users.",
+            "enabled": True,
+            "live": True,
+            "logging": True,
+            "runtime": "python-3.8",
+            "deploymentRetention": 7.0,
+            "deploymentId": "5e5ea5c16897e",
+            "deploymentCreatedAt": "2020-10-15T06:38:00.000+00:00",
+            "latestDeploymentId": "5e5ea5c16897e",
+            "latestDeploymentCreatedAt": "2020-10-15T06:38:00.000+00:00",
+            "latestDeploymentStatus": "ready",
+            "scopes": [],
+            "vars": [],
+            "events": [],
+            "schedule": "5 4 * * *",
+            "timeout": 300.0,
+            "entrypoint": "index.js",
+            "commands": "npm install",
+            "version": "v2",
+            "installationId": "6m40at4ejk5h2u9s1hboo",
+            "providerRepositoryId": "appwrite",
+            "providerBranch": "main",
+            "providerRootDirectory": "functions\/helloWorld",
+            "providerSilentMode": True,
+            "providerBranches": [],
+            "providerPaths": [],
+            "buildSpecification": "s-1vcpu-512mb",
+            "runtimeSpecification": "s-1vcpu-512mb",
+            "emailEnabled": True,
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.update(
+            '<FUNCTION_ID>',
+            '<NAME>',
+            runtime='node-14.5',
+            execute=[],
+            events=[],
+            schedule='0 0 * * *',
+            timeout=1,
+            enabled=False,
+            logging=False,
+            entrypoint='<ENTRYPOINT>',
+            commands='<COMMANDS>',
+            scopes=[],
+            installation_id='<INSTALLATION_ID>',
+            provider_repository_id='<PROVIDER_REPOSITORY_ID>',
+            provider_branch='<PROVIDER_BRANCH>',
+            provider_silent_mode=False,
+            provider_root_directory='<PROVIDER_ROOT_DIRECTORY>',
+            provider_branches=[],
+            provider_paths=[],
+            build_specification='s-1vcpu-512mb',
+            runtime_specification='s-1vcpu-512mb',
+            deployment_retention=1,
+            interval=1,
+            description='<DESCRIPTION>',
+            email_enabled=False,
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_delete(self):
+        data = ''
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.delete(
+            '<FUNCTION_ID>',
+        )
+        self.assertEqual(response, data)
+
+    @respx.mock
+    async def test_update_function_deployment(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "execute": [],
+            "name": "My Function",
+            "description": "Sends a welcome email to newly registered users.",
+            "enabled": True,
+            "live": True,
+            "logging": True,
+            "runtime": "python-3.8",
+            "deploymentRetention": 7.0,
+            "deploymentId": "5e5ea5c16897e",
+            "deploymentCreatedAt": "2020-10-15T06:38:00.000+00:00",
+            "latestDeploymentId": "5e5ea5c16897e",
+            "latestDeploymentCreatedAt": "2020-10-15T06:38:00.000+00:00",
+            "latestDeploymentStatus": "ready",
+            "scopes": [],
+            "vars": [],
+            "events": [],
+            "schedule": "5 4 * * *",
+            "timeout": 300.0,
+            "entrypoint": "index.js",
+            "commands": "npm install",
+            "version": "v2",
+            "installationId": "6m40at4ejk5h2u9s1hboo",
+            "providerRepositoryId": "appwrite",
+            "providerBranch": "main",
+            "providerRootDirectory": "functions\/helloWorld",
+            "providerSilentMode": True,
+            "providerBranches": [],
+            "providerPaths": [],
+            "buildSpecification": "s-1vcpu-512mb",
+            "runtimeSpecification": "s-1vcpu-512mb",
+            "emailEnabled": True,
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.update_function_deployment(
+            '<FUNCTION_ID>',
+            '<DEPLOYMENT_ID>',
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_list_deployments(self):
+        data = {
+            "total": 5.0,
+            "deployments": [],
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.list_deployments(
+            '<FUNCTION_ID>',
+            queries=[],
+            search='<SEARCH>',
+            total=False,
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_create_deployment(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "type": "vcs",
+            "resourceId": "5e5ea6g16897e",
+            "resourceType": "functions",
+            "entrypoint": "index.js",
+            "sourceSize": 128.0,
+            "buildSize": 128.0,
+            "totalSize": 128.0,
+            "buildId": "5e5ea5c16897e",
+            "activate": True,
+            "screenshotLight": "5e5ea5c16897e",
+            "screenshotDark": "5e5ea5c16897e",
+            "status": "ready",
+            "buildLogs": "Compiling source files...",
+            "buildDuration": 128.0,
+            "providerRepositoryName": "database",
+            "providerRepositoryOwner": "utopia",
+            "providerRepositoryUrl": "https:\/\/github.com\/vermakhushboo\/g4-node-function",
+            "providerCommitHash": "7c3f25d",
+            "providerCommitAuthorUrl": "https:\/\/github.com\/vermakhushboo",
+            "providerCommitAuthor": "Khushboo Verma",
+            "providerCommitMessage": "Update index.js",
+            "providerCommitUrl": "https:\/\/github.com\/vermakhushboo\/g4-node-function\/commit\/60c0416257a9cbcdd96b2d370c38d8f8d150ccfb",
+            "providerBranch": "0.7.x",
+            "providerBranchUrl": "https:\/\/github.com\/vermakhushboo\/appwrite\/tree\/0.7.x",
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.create_deployment(
+            '<FUNCTION_ID>',
+            InputFile.from_bytes(bytearray(), "example.file"),
+            False,
+            entrypoint='<ENTRYPOINT>',
+            commands='<COMMANDS>',
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_create_duplicate_deployment(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "type": "vcs",
+            "resourceId": "5e5ea6g16897e",
+            "resourceType": "functions",
+            "entrypoint": "index.js",
+            "sourceSize": 128.0,
+            "buildSize": 128.0,
+            "totalSize": 128.0,
+            "buildId": "5e5ea5c16897e",
+            "activate": True,
+            "screenshotLight": "5e5ea5c16897e",
+            "screenshotDark": "5e5ea5c16897e",
+            "status": "ready",
+            "buildLogs": "Compiling source files...",
+            "buildDuration": 128.0,
+            "providerRepositoryName": "database",
+            "providerRepositoryOwner": "utopia",
+            "providerRepositoryUrl": "https:\/\/github.com\/vermakhushboo\/g4-node-function",
+            "providerCommitHash": "7c3f25d",
+            "providerCommitAuthorUrl": "https:\/\/github.com\/vermakhushboo",
+            "providerCommitAuthor": "Khushboo Verma",
+            "providerCommitMessage": "Update index.js",
+            "providerCommitUrl": "https:\/\/github.com\/vermakhushboo\/g4-node-function\/commit\/60c0416257a9cbcdd96b2d370c38d8f8d150ccfb",
+            "providerBranch": "0.7.x",
+            "providerBranchUrl": "https:\/\/github.com\/vermakhushboo\/appwrite\/tree\/0.7.x",
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.create_duplicate_deployment(
+            '<FUNCTION_ID>',
+            '<DEPLOYMENT_ID>',
+            build_id='<BUILD_ID>',
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_create_template_deployment(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "type": "vcs",
+            "resourceId": "5e5ea6g16897e",
+            "resourceType": "functions",
+            "entrypoint": "index.js",
+            "sourceSize": 128.0,
+            "buildSize": 128.0,
+            "totalSize": 128.0,
+            "buildId": "5e5ea5c16897e",
+            "activate": True,
+            "screenshotLight": "5e5ea5c16897e",
+            "screenshotDark": "5e5ea5c16897e",
+            "status": "ready",
+            "buildLogs": "Compiling source files...",
+            "buildDuration": 128.0,
+            "providerRepositoryName": "database",
+            "providerRepositoryOwner": "utopia",
+            "providerRepositoryUrl": "https:\/\/github.com\/vermakhushboo\/g4-node-function",
+            "providerCommitHash": "7c3f25d",
+            "providerCommitAuthorUrl": "https:\/\/github.com\/vermakhushboo",
+            "providerCommitAuthor": "Khushboo Verma",
+            "providerCommitMessage": "Update index.js",
+            "providerCommitUrl": "https:\/\/github.com\/vermakhushboo\/g4-node-function\/commit\/60c0416257a9cbcdd96b2d370c38d8f8d150ccfb",
+            "providerBranch": "0.7.x",
+            "providerBranchUrl": "https:\/\/github.com\/vermakhushboo\/appwrite\/tree\/0.7.x",
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.create_template_deployment(
+            '<FUNCTION_ID>',
+            '<REPOSITORY>',
+            '<OWNER>',
+            '<ROOT_DIRECTORY>',
+            'commit',
+            '<REFERENCE>',
+            activate=False,
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_create_vcs_deployment(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "type": "vcs",
+            "resourceId": "5e5ea6g16897e",
+            "resourceType": "functions",
+            "entrypoint": "index.js",
+            "sourceSize": 128.0,
+            "buildSize": 128.0,
+            "totalSize": 128.0,
+            "buildId": "5e5ea5c16897e",
+            "activate": True,
+            "screenshotLight": "5e5ea5c16897e",
+            "screenshotDark": "5e5ea5c16897e",
+            "status": "ready",
+            "buildLogs": "Compiling source files...",
+            "buildDuration": 128.0,
+            "providerRepositoryName": "database",
+            "providerRepositoryOwner": "utopia",
+            "providerRepositoryUrl": "https:\/\/github.com\/vermakhushboo\/g4-node-function",
+            "providerCommitHash": "7c3f25d",
+            "providerCommitAuthorUrl": "https:\/\/github.com\/vermakhushboo",
+            "providerCommitAuthor": "Khushboo Verma",
+            "providerCommitMessage": "Update index.js",
+            "providerCommitUrl": "https:\/\/github.com\/vermakhushboo\/g4-node-function\/commit\/60c0416257a9cbcdd96b2d370c38d8f8d150ccfb",
+            "providerBranch": "0.7.x",
+            "providerBranchUrl": "https:\/\/github.com\/vermakhushboo\/appwrite\/tree\/0.7.x",
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.create_vcs_deployment(
+            '<FUNCTION_ID>',
+            'branch',
+            '<REFERENCE>',
+            activate=False,
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_get_deployment(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "type": "vcs",
+            "resourceId": "5e5ea6g16897e",
+            "resourceType": "functions",
+            "entrypoint": "index.js",
+            "sourceSize": 128.0,
+            "buildSize": 128.0,
+            "totalSize": 128.0,
+            "buildId": "5e5ea5c16897e",
+            "activate": True,
+            "screenshotLight": "5e5ea5c16897e",
+            "screenshotDark": "5e5ea5c16897e",
+            "status": "ready",
+            "buildLogs": "Compiling source files...",
+            "buildDuration": 128.0,
+            "providerRepositoryName": "database",
+            "providerRepositoryOwner": "utopia",
+            "providerRepositoryUrl": "https:\/\/github.com\/vermakhushboo\/g4-node-function",
+            "providerCommitHash": "7c3f25d",
+            "providerCommitAuthorUrl": "https:\/\/github.com\/vermakhushboo",
+            "providerCommitAuthor": "Khushboo Verma",
+            "providerCommitMessage": "Update index.js",
+            "providerCommitUrl": "https:\/\/github.com\/vermakhushboo\/g4-node-function\/commit\/60c0416257a9cbcdd96b2d370c38d8f8d150ccfb",
+            "providerBranch": "0.7.x",
+            "providerBranchUrl": "https:\/\/github.com\/vermakhushboo\/appwrite\/tree\/0.7.x",
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.get_deployment(
+            '<FUNCTION_ID>',
+            '<DEPLOYMENT_ID>',
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_delete_deployment(self):
+        data = ''
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.delete_deployment(
+            '<FUNCTION_ID>',
+            '<DEPLOYMENT_ID>',
+        )
+        self.assertEqual(response, data)
+
+    @respx.mock
+    async def test_get_deployment_download(self):
+        data = bytearray()
+        headers = {'Content-Type': 'application/octet-stream'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, content=bytes(data), headers=headers),
+        )
+        response = await self.functions.get_deployment_download(
+            '<FUNCTION_ID>',
+            '<DEPLOYMENT_ID>',
+            type='source',
+            token='<TOKEN>',
+        )
+        self.assertEqual(response, data)
+
+    @respx.mock
+    async def test_update_deployment_status(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "type": "vcs",
+            "resourceId": "5e5ea6g16897e",
+            "resourceType": "functions",
+            "entrypoint": "index.js",
+            "sourceSize": 128.0,
+            "buildSize": 128.0,
+            "totalSize": 128.0,
+            "buildId": "5e5ea5c16897e",
+            "activate": True,
+            "screenshotLight": "5e5ea5c16897e",
+            "screenshotDark": "5e5ea5c16897e",
+            "status": "ready",
+            "buildLogs": "Compiling source files...",
+            "buildDuration": 128.0,
+            "providerRepositoryName": "database",
+            "providerRepositoryOwner": "utopia",
+            "providerRepositoryUrl": "https:\/\/github.com\/vermakhushboo\/g4-node-function",
+            "providerCommitHash": "7c3f25d",
+            "providerCommitAuthorUrl": "https:\/\/github.com\/vermakhushboo",
+            "providerCommitAuthor": "Khushboo Verma",
+            "providerCommitMessage": "Update index.js",
+            "providerCommitUrl": "https:\/\/github.com\/vermakhushboo\/g4-node-function\/commit\/60c0416257a9cbcdd96b2d370c38d8f8d150ccfb",
+            "providerBranch": "0.7.x",
+            "providerBranchUrl": "https:\/\/github.com\/vermakhushboo\/appwrite\/tree\/0.7.x",
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.update_deployment_status(
+            '<FUNCTION_ID>',
+            '<DEPLOYMENT_ID>',
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_list_executions(self):
+        data = {
+            "total": 5.0,
+            "executions": [],
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.list_executions(
+            '<FUNCTION_ID>',
+            queries=[],
+            total=False,
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_create_execution(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "$permissions": [],
+            "resourceId": "5e5ea6g16897e",
+            "resourceType": "functions",
+            "deploymentId": "5e5ea5c16897e",
+            "trigger": "http",
+            "status": "processing",
+            "requestMethod": "GET",
+            "requestPath": "\/articles?id=5",
+            "requestHeaders": [],
+            "responseStatusCode": 200.0,
+            "responseBody": "",
+            "responseHeaders": [],
+            "logs": "",
+            "errors": "",
+            "duration": 1.23,
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.create_execution(
+            '<FUNCTION_ID>',
+            body='<BODY>',
+            xasync=False,
+            path='<PATH>',
+            method='GET',
+            headers={},
+            scheduled_at='<SCHEDULED_AT>',
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_get_execution(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "$permissions": [],
+            "resourceId": "5e5ea6g16897e",
+            "resourceType": "functions",
+            "deploymentId": "5e5ea5c16897e",
+            "trigger": "http",
+            "status": "processing",
+            "requestMethod": "GET",
+            "requestPath": "\/articles?id=5",
+            "requestHeaders": [],
+            "responseStatusCode": 200.0,
+            "responseBody": "",
+            "responseHeaders": [],
+            "logs": "",
+            "errors": "",
+            "duration": 1.23,
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.get_execution(
+            '<FUNCTION_ID>',
+            '<EXECUTION_ID>',
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_delete_execution(self):
+        data = ''
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.delete_execution(
+            '<FUNCTION_ID>',
+            '<EXECUTION_ID>',
+        )
+        self.assertEqual(response, data)
+
+    @respx.mock
+    async def test_list_variables(self):
+        data = {
+            "total": 5.0,
+            "variables": [],
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.list_variables(
+            '<FUNCTION_ID>',
+            queries=[],
+            total=False,
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_create_variable(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "key": "API_KEY",
+            "description": "Stripe secret key used at checkout.",
+            "value": "myPa$$word1",
+            "secret": True,
+            "resourceType": "function",
+            "resourceId": "myAwesomeFunction",
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.create_variable(
+            '<FUNCTION_ID>',
+            '<VARIABLE_ID>',
+            '<KEY>',
+            '<VALUE>',
+            secret=False,
+            description='<DESCRIPTION>',
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_get_variable(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "key": "API_KEY",
+            "description": "Stripe secret key used at checkout.",
+            "value": "myPa$$word1",
+            "secret": True,
+            "resourceType": "function",
+            "resourceId": "myAwesomeFunction",
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.get_variable(
+            '<FUNCTION_ID>',
+            '<VARIABLE_ID>',
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_update_variable(self):
+        data = {
+            "$id": "5e5ea5c16897e",
+            "$createdAt": "2020-10-15T06:38:00.000+00:00",
+            "$updatedAt": "2020-10-15T06:38:00.000+00:00",
+            "key": "API_KEY",
+            "description": "Stripe secret key used at checkout.",
+            "value": "myPa$$word1",
+            "secret": True,
+            "resourceType": "function",
+            "resourceId": "myAwesomeFunction",
+        }
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.update_variable(
+            '<FUNCTION_ID>',
+            '<VARIABLE_ID>',
+            key='<KEY>',
+            value='<VALUE>',
+            secret=False,
+            description='<DESCRIPTION>',
+        )
+        self.assertEqual(response.to_dict(), data)
+
+    @respx.mock
+    async def test_delete_variable(self):
+        data = ''
+        headers = {'Content-Type': 'application/json'}
+        respx.route().mock(
+            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        )
+        response = await self.functions.delete_variable(
+            '<FUNCTION_ID>',
+            '<VARIABLE_ID>',
+        )
+        self.assertEqual(response, data)

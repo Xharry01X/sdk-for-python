@@ -1,7 +1,8 @@
 import json
-import httpx2
-import respx
+import re
+import requests_mock
 import unittest
+from urllib.parse import parse_qs, unquote, urlsplit
 
 from appwrite.client import Client
 from appwrite.input_file import InputFile
@@ -9,33 +10,46 @@ from appwrite.models import *
 from appwrite.services.apps import Apps
 
 
-class AppsServiceTest(unittest.IsolatedAsyncioTestCase):
+class AppsServiceTest(unittest.TestCase):
 
-    async def asyncSetUp(self):
+    def setUp(self):
         self.client = Client()
         self.apps = Apps(self.client)
 
-    async def asyncTearDown(self):
-        await self.client.aclose()
-
-    @respx.mock
-    async def test_list(self):
+    @requests_mock.Mocker()
+    def test_list(self, m):
         data = {
             "total": 5.0,
             "apps": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.list(
+        response = self.apps.list(
             queries=[],
             total=False,
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(
+            sent,
+            {
+                'total': ['false'],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_create(self):
+    @requests_mock.Mocker()
+    def test_create(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -65,10 +79,13 @@ class AppsServiceTest(unittest.IsolatedAsyncioTestCase):
             "secrets": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.create(
+        response = self.apps.create(
             '<APP_ID>',
             '<NAME>',
             [],
@@ -89,36 +106,89 @@ class AppsServiceTest(unittest.IsolatedAsyncioTestCase):
             device_flow=False,
             team_id='<TEAM_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'appId': '<APP_ID>',
+                'name': '<NAME>',
+                'description': '<DESCRIPTION>',
+                'clientUri': 'https://example.com',
+                'logoUri': 'https://example.com',
+                'privacyPolicyUrl': 'https://example.com',
+                'termsUrl': 'https://example.com',
+                'contacts': [],
+                'tagline': '<TAGLINE>',
+                'tags': [],
+                'images': [],
+                'supportUrl': 'https://example.com',
+                'dataDeletionUrl': 'https://example.com',
+                'redirectUris': [],
+                'postLogoutRedirectUris': [],
+                'enabled': False,
+                'type': 'public',
+                'deviceFlow': False,
+                'teamId': '<TEAM_ID>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_list_installation_scopes(self):
+    @requests_mock.Mocker()
+    def test_list_installation_scopes(self, m):
         data = {
             "total": 5.0,
             "scopes": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.list_installation_scopes()
+        response = self.apps.list_installation_scopes()
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps/scopes/installations',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_list_o_auth2_scopes(self):
+    @requests_mock.Mocker()
+    def test_list_o_auth2_scopes(self, m):
         data = {
             "total": 5.0,
             "scopes": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.list_o_auth2_scopes()
+        response = self.apps.list_o_auth2_scopes()
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps/scopes/oauth2',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_get(self):
+    @requests_mock.Mocker()
+    def test_get(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -148,16 +218,27 @@ class AppsServiceTest(unittest.IsolatedAsyncioTestCase):
             "secrets": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.get(
+        response = self.apps.get(
             '<APP_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps/<APP_ID>',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_update(self):
+    @requests_mock.Mocker()
+    def test_update(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -187,10 +268,13 @@ class AppsServiceTest(unittest.IsolatedAsyncioTestCase):
             "secrets": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PUT',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.update(
+        response = self.apps.update(
             '<APP_ID>',
             '<NAME>',
             description='<DESCRIPTION>',
@@ -212,39 +296,97 @@ class AppsServiceTest(unittest.IsolatedAsyncioTestCase):
             installation_scopes=[],
             installation_redirect_url='https://example.com',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps/<APP_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'name': '<NAME>',
+                'description': '<DESCRIPTION>',
+                'clientUri': 'https://example.com',
+                'logoUri': 'https://example.com',
+                'privacyPolicyUrl': 'https://example.com',
+                'termsUrl': 'https://example.com',
+                'contacts': [],
+                'tagline': '<TAGLINE>',
+                'tags': [],
+                'images': [],
+                'supportUrl': 'https://example.com',
+                'dataDeletionUrl': 'https://example.com',
+                'enabled': False,
+                'redirectUris': [],
+                'postLogoutRedirectUris': [],
+                'type': 'public',
+                'deviceFlow': False,
+                'installationScopes': [],
+                'installationRedirectUrl': 'https://example.com',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_delete(self):
+    @requests_mock.Mocker()
+    def test_delete(self, m):
         data = ''
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'DELETE',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.delete(
+        response = self.apps.delete(
             '<APP_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps/<APP_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(sent, {})
         self.assertEqual(response, data)
 
-    @respx.mock
-    async def test_list_installations(self):
+    @requests_mock.Mocker()
+    def test_list_installations(self, m):
         data = {
             "total": 5.0,
             "installations": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.list_installations(
+        response = self.apps.list_installations(
             '<APP_ID>',
             queries=[],
             total=False,
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps/<APP_ID>/installations',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(
+            sent,
+            {
+                'total': ['false'],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_get_installation(self):
+    @requests_mock.Mocker()
+    def test_get_installation(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -257,30 +399,52 @@ class AppsServiceTest(unittest.IsolatedAsyncioTestCase):
             "createdByName": "Walter White",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.get_installation(
+        response = self.apps.get_installation(
             '<APP_ID>',
             '<INSTALLATION_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps/<APP_ID>/installations/<INSTALLATION_ID>',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_delete_installation(self):
+    @requests_mock.Mocker()
+    def test_delete_installation(self, m):
         data = ''
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'DELETE',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.delete_installation(
+        response = self.apps.delete_installation(
             '<APP_ID>',
             '<INSTALLATION_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps/<APP_ID>/installations/<INSTALLATION_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(sent, {})
         self.assertEqual(response, data)
 
-    @respx.mock
-    async def test_create_installation_token(self):
+    @requests_mock.Mocker()
+    def test_create_installation_token(self, m):
         data = {
             "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...",
             "token_type": "Bearer",
@@ -289,34 +453,61 @@ class AppsServiceTest(unittest.IsolatedAsyncioTestCase):
             "scope": "openid email profile",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.create_installation_token(
+        response = self.apps.create_installation_token(
             '<APP_ID>',
             '<INSTALLATION_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps/<APP_ID>/installations/<INSTALLATION_ID>/tokens',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_list_keys(self):
+    @requests_mock.Mocker()
+    def test_list_keys(self, m):
         data = {
             "total": 5.0,
             "keys": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.list_keys(
+        response = self.apps.list_keys(
             '<APP_ID>',
             queries=[],
             total=False,
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps/<APP_ID>/keys',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(
+            sent,
+            {
+                'total': ['false'],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_create_key(self):
+    @requests_mock.Mocker()
+    def test_create_key(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -328,16 +519,27 @@ class AppsServiceTest(unittest.IsolatedAsyncioTestCase):
             "createdByName": "Walter White",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.create_key(
+        response = self.apps.create_key(
             '<APP_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps/<APP_ID>/keys',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_get_key(self):
+    @requests_mock.Mocker()
+    def test_get_key(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -349,30 +551,52 @@ class AppsServiceTest(unittest.IsolatedAsyncioTestCase):
             "createdByName": "Walter White",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.get_key(
+        response = self.apps.get_key(
             '<APP_ID>',
             '<KEY_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps/<APP_ID>/keys/<KEY_ID>',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_delete_key(self):
+    @requests_mock.Mocker()
+    def test_delete_key(self, m):
         data = ''
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'DELETE',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.delete_key(
+        response = self.apps.delete_key(
             '<APP_ID>',
             '<KEY_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps/<APP_ID>/keys/<KEY_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(sent, {})
         self.assertEqual(response, data)
 
-    @respx.mock
-    async def test_update_labels(self):
+    @requests_mock.Mocker()
+    def test_update_labels(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -402,34 +626,66 @@ class AppsServiceTest(unittest.IsolatedAsyncioTestCase):
             "secrets": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PUT',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.update_labels(
+        response = self.apps.update_labels(
             '<APP_ID>',
             [],
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps/<APP_ID>/labels',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'labels': [],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_list_secrets(self):
+    @requests_mock.Mocker()
+    def test_list_secrets(self, m):
         data = {
             "total": 5.0,
             "secrets": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.list_secrets(
+        response = self.apps.list_secrets(
             '<APP_ID>',
             queries=[],
             total=False,
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps/<APP_ID>/secrets',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(
+            sent,
+            {
+                'total': ['false'],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_create_secret(self):
+    @requests_mock.Mocker()
+    def test_create_secret(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -441,16 +697,27 @@ class AppsServiceTest(unittest.IsolatedAsyncioTestCase):
             "createdByName": "Walter White",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'POST',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.create_secret(
+        response = self.apps.create_secret(
             '<APP_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps/<APP_ID>/secrets',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_get_secret(self):
+    @requests_mock.Mocker()
+    def test_get_secret(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -462,30 +729,52 @@ class AppsServiceTest(unittest.IsolatedAsyncioTestCase):
             "createdByName": "Walter White",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.get_secret(
+        response = self.apps.get_secret(
             '<APP_ID>',
             '<SECRET_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps/<APP_ID>/secrets/<SECRET_ID>',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_delete_secret(self):
+    @requests_mock.Mocker()
+    def test_delete_secret(self, m):
         data = ''
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'DELETE',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.delete_secret(
+        response = self.apps.delete_secret(
             '<APP_ID>',
             '<SECRET_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps/<APP_ID>/secrets/<SECRET_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(sent, {})
         self.assertEqual(response, data)
 
-    @respx.mock
-    async def test_update_team(self):
+    @requests_mock.Mocker()
+    def test_update_team(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -515,23 +804,50 @@ class AppsServiceTest(unittest.IsolatedAsyncioTestCase):
             "secrets": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PATCH',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.update_team(
+        response = self.apps.update_team(
             '<APP_ID>',
             '<TEAM_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps/<APP_ID>/team',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'teamId': '<TEAM_ID>',
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_delete_tokens(self):
+    @requests_mock.Mocker()
+    def test_delete_tokens(self, m):
         data = ''
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'DELETE',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.apps.delete_tokens(
+        response = self.apps.delete_tokens(
             '<APP_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/apps/<APP_ID>/tokens',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(sent, {})
         self.assertEqual(response, data)

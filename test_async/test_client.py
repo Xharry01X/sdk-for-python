@@ -10,11 +10,11 @@ httpx2.alias_httpx()
 
 import respx
 
-from appwrite.client import Client
+from appwrite.async_client import AsyncClient
 from appwrite.exception import AppwriteException
 from appwrite.input_file import InputFile
-from appwrite.services.account import Account
-from appwrite.services.storage import Storage
+from appwrite.async_services.account import AsyncAccount
+from appwrite.async_services.storage import AsyncStorage
 
 
 class AsyncClientTest(unittest.IsolatedAsyncioTestCase):
@@ -34,7 +34,7 @@ class AsyncClientTest(unittest.IsolatedAsyncioTestCase):
 
         respx.route().mock(side_effect=handler)
 
-        async with Client() as client:
+        async with AsyncClient() as client:
             responses = await asyncio.gather(
                 *[client.call('get', f'/users/{index}', {'accept': 'application/json'}) for index in range(5)]
             )
@@ -52,7 +52,7 @@ class AsyncClientTest(unittest.IsolatedAsyncioTestCase):
             )
         )
 
-        async with Client() as client:
+        async with AsyncClient() as client:
             with self.assertRaises(AppwriteException) as context:
                 await client.call('get', '/users/missing', {'accept': 'application/json'})
 
@@ -62,7 +62,7 @@ class AsyncClientTest(unittest.IsolatedAsyncioTestCase):
 
     @respx.mock
     async def test_context_manager_closes_the_connection_pool(self):
-        async with Client() as client:
+        async with AsyncClient() as client:
             http = client._http
             self.assertFalse(http.is_closed)
 
@@ -100,9 +100,9 @@ class AsyncClientTest(unittest.IsolatedAsyncioTestCase):
         async def on_progress(payload):
             progress.append(payload)
 
-        async with Client() as client:
+        async with AsyncClient() as client:
             client._chunk_size = 10
-            storage = Storage(client)
+            storage = AsyncStorage(client)
             await storage.create_file(
                 bucket_id='bucket-1',
                 file_id='file-1',
@@ -154,9 +154,9 @@ class AsyncClientTest(unittest.IsolatedAsyncioTestCase):
 
         respx.route().mock(side_effect=handler)
 
-        async with Client() as client:
+        async with AsyncClient() as client:
             client._chunk_size = 10
-            storage = Storage(client)
+            storage = AsyncStorage(client)
             with self.assertRaises(AppwriteException) as context:
                 await storage.create_file(
                     bucket_id='bucket-1',
@@ -205,9 +205,9 @@ class AsyncClientTest(unittest.IsolatedAsyncioTestCase):
                 # the sibling reports targets the concurrent reporting path.
                 raise RuntimeError('progress callback failed')
 
-        async with Client() as client:
+        async with AsyncClient() as client:
             client._chunk_size = 10
-            storage = Storage(client)
+            storage = AsyncStorage(client)
             with self.assertRaises(RuntimeError):
                 await storage.create_file(
                     bucket_id='bucket-1',
@@ -231,7 +231,7 @@ class AsyncClientTest(unittest.IsolatedAsyncioTestCase):
             )
         )
 
-        async with Client() as client:
+        async with AsyncClient() as client:
             location = await client.call(
                 'get',
                 '/account/tokens/oauth2/github',
@@ -252,7 +252,7 @@ class AsyncClientTest(unittest.IsolatedAsyncioTestCase):
             )
         )
 
-        async with Client() as client:
+        async with AsyncClient() as client:
             with self.assertRaises(AppwriteException) as context:
                 await client.call(
                     'get',
@@ -275,8 +275,8 @@ class AsyncClientTest(unittest.IsolatedAsyncioTestCase):
             )
         )
 
-        async with Client() as client:
-            account = Account(client)
+        async with AsyncClient() as client:
+            account = AsyncAccount(client)
             response = await account.create_o_auth2_token('github')
 
         self.assertEqual(response, 'https://appwrite.io/oauth/callback?userId=1&secret=2')

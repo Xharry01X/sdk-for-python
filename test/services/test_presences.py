@@ -1,7 +1,8 @@
 import json
-import httpx2
-import respx
+import re
+import requests_mock
 import unittest
+from urllib.parse import parse_qs, unquote, urlsplit
 
 from appwrite.client import Client
 from appwrite.input_file import InputFile
@@ -9,35 +10,48 @@ from appwrite.models import *
 from appwrite.services.presences import Presences
 
 
-class PresencesServiceTest(unittest.IsolatedAsyncioTestCase):
+class PresencesServiceTest(unittest.TestCase):
 
-    async def asyncSetUp(self):
+    def setUp(self):
         self.client = Client()
         self.presences = Presences(self.client)
 
-    async def asyncTearDown(self):
-        await self.client.aclose()
-
-
-    @respx.mock
-    async def test_list(self):
+    @requests_mock.Mocker()
+    def test_list(self, m):
         data = {
             "total": 5.0,
             "presences": [],
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.presences.list(
+        response = self.presences.list(
             queries=[],
             total=False,
             ttl=1,
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/presences',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(
+            sent,
+            {
+                'total': ['false'],
+                'ttl': ['1'],
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_get(self):
+    @requests_mock.Mocker()
+    def test_get(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -47,16 +61,27 @@ class PresencesServiceTest(unittest.IsolatedAsyncioTestCase):
             "source": "HTTP",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'GET',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.presences.get(
+        response = self.presences.get(
             '<PRESENCE_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/presences/<PRESENCE_ID>',
+        )
+        sent = parse_qs(url.query, keep_blank_values=True)
+        self.assertEqual(sent, {})
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_upsert(self):
+    @requests_mock.Mocker()
+    def test_upsert(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -66,10 +91,13 @@ class PresencesServiceTest(unittest.IsolatedAsyncioTestCase):
             "source": "HTTP",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PUT',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.presences.upsert(
+        response = self.presences.upsert(
             '<PRESENCE_ID>',
             '<USER_ID>',
             '<STATUS>',
@@ -77,10 +105,27 @@ class PresencesServiceTest(unittest.IsolatedAsyncioTestCase):
             expires_at='2020-10-15T06:38:00.000+00:00',
             metadata={},
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/presences/<PRESENCE_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'userId': '<USER_ID>',
+                'status': '<STATUS>',
+                'permissions': [],
+                'expiresAt': '2020-10-15T06:38:00.000+00:00',
+                'metadata': {},
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_update(self):
+    @requests_mock.Mocker()
+    def test_update(self, m):
         data = {
             "$id": "5e5ea5c16897e",
             "$createdAt": "2020-10-15T06:38:00.000+00:00",
@@ -90,10 +135,13 @@ class PresencesServiceTest(unittest.IsolatedAsyncioTestCase):
             "source": "HTTP",
         }
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'PATCH',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.presences.update(
+        response = self.presences.update(
             '<PRESENCE_ID>',
             '<USER_ID>',
             status='<STATUS>',
@@ -102,16 +150,45 @@ class PresencesServiceTest(unittest.IsolatedAsyncioTestCase):
             permissions=[],
             purge=False,
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/presences/<PRESENCE_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(
+            sent,
+            {
+                'userId': '<USER_ID>',
+                'status': '<STATUS>',
+                'expiresAt': '2020-10-15T06:38:00.000+00:00',
+                'metadata': {},
+                'permissions': [],
+                'purge': False,
+            },
+        )
         self.assertEqual(response.to_dict(), data)
 
-    @respx.mock
-    async def test_delete(self):
+    @requests_mock.Mocker()
+    def test_delete(self, m):
         data = ''
         headers = {'Content-Type': 'application/json'}
-        respx.route().mock(
-            return_value=httpx2.Response(200, text=json.dumps(data), headers=headers),
+        m.request(
+            'DELETE',
+            requests_mock.ANY,
+            text=json.dumps(data),
+            headers=headers,
         )
-        response = await self.presences.delete(
+        response = self.presences.delete(
             '<PRESENCE_ID>',
         )
+        request = m.last_request
+        url = urlsplit(request.url)
+        self.assertEqual(
+            unquote(url.path),
+            '/v1/presences/<PRESENCE_ID>',
+        )
+        sent = json.loads(request.body or '{}')
+        self.assertEqual(sent, {})
         self.assertEqual(response, data)

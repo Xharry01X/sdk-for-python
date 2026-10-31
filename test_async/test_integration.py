@@ -18,10 +18,10 @@ import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
-from appwrite.client import Client
+from appwrite.async_client import AsyncClient
 from appwrite.exception import AppwriteException
 from appwrite.input_file import InputFile
-from appwrite.services.storage import Storage
+from appwrite.async_services.storage import AsyncStorage
 
 
 class _State:
@@ -276,7 +276,7 @@ class _LiveServerTest(unittest.IsolatedAsyncioTestCase):
         cls.server.close()
 
     async def asyncSetUp(self):
-        self.client = Client()
+        self.client = AsyncClient()
         self.client.set_endpoint(self.server.endpoint)
         self.state = self.server.state
 
@@ -337,7 +337,7 @@ class TestRealRequests(_LiveServerTest):
         self.assertEqual(context.exception.type, 'not_found')
 
     async def test_connection_refused_is_wrapped_in_appwrite_exception(self):
-        client = Client()
+        client = AsyncClient()
         client.set_endpoint('http://127.0.0.1:1/v1')
         try:
             with self.assertRaises(AppwriteException):
@@ -401,7 +401,7 @@ class TestRealChunkedUpload(_LiveServerTest):
         async def on_progress(update):
             progress.append(update)
 
-        storage = Storage(self.client)
+        storage = AsyncStorage(self.client)
         result = await storage.create_file(
             bucket_id='bucket-1',
             file_id='file-1',
@@ -447,7 +447,7 @@ class TestRealTls(unittest.IsolatedAsyncioTestCase):
         cls.server.close()
 
     async def test_self_signed_certificate_is_rejected_by_default(self):
-        client = Client()
+        client = AsyncClient()
         client.set_endpoint(self.server.endpoint)
         try:
             with self.assertRaises(AppwriteException):
@@ -456,7 +456,7 @@ class TestRealTls(unittest.IsolatedAsyncioTestCase):
             await client.aclose()
 
     async def test_self_signed_certificate_is_accepted_after_opt_in(self):
-        async with Client() as client:
+        async with AsyncClient() as client:
             client.set_endpoint(self.server.endpoint)
             client.set_self_signed()
             response = await client.call('get', '/echo')
@@ -468,7 +468,7 @@ class TestRealAppwriteCloud(unittest.IsolatedAsyncioTestCase):
     """Talks to the real Appwrite Cloud endpoint over real TLS."""
 
     async def test_cloud_endpoint_rejects_unauthenticated_call(self):
-        async with Client() as client:
+        async with AsyncClient() as client:
             client.set_endpoint('https://cloud.appwrite.io/v1')
             try:
                 with self.assertRaises(AppwriteException) as context:

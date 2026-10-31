@@ -26,7 +26,7 @@ class Mongo(Service):
     def __init__(self, client) -> None:
         super(Mongo, self).__init__(client)
 
-    async def list(
+    def list(
         self,
         queries: Optional[List[str]] = None,
         total: Optional[bool] = None,
@@ -58,7 +58,7 @@ class Mongo(Service):
         if total is not None:
             api_params['total'] = self._normalize_value(total)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -70,7 +70,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabaseList)
 
-    async def create(
+    def create(
         self,
         database_id: str,
         name: str,
@@ -166,7 +166,7 @@ class Mongo(Service):
         if storage_autoscaling_max_gb is not None:
             api_params['storageAutoscalingMaxGb'] = self._normalize_value(storage_autoscaling_max_gb)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -179,7 +179,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabase)
 
-    async def list_specifications(
+    def list_specifications(
         self,
     ) -> DedicatedDatabaseSpecificationList:
         """
@@ -198,7 +198,7 @@ class Mongo(Service):
         api_path = '/mongo/specifications'
         api_params = {}
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -210,7 +210,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabaseSpecificationList)
 
-    async def get(
+    def get(
         self,
         database_id: str,
     ) -> DedicatedDatabase:
@@ -238,7 +238,7 @@ class Mongo(Service):
             raise AppwriteException('Missing required parameter: "database_id"')
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -250,7 +250,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabase)
 
-    async def update(
+    def update(
         self,
         database_id: str,
         name: Optional[str] = None,
@@ -380,7 +380,7 @@ class Mongo(Service):
         if sql_api_timeout_seconds is not None:
             api_params['sqlApiTimeoutSeconds'] = self._normalize_value(sql_api_timeout_seconds)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -393,7 +393,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabase)
 
-    async def delete(
+    def delete(
         self,
         database_id: str,
     ) -> Dict[str, Any]:
@@ -421,7 +421,7 @@ class Mongo(Service):
             raise AppwriteException('Missing required parameter: "database_id"')
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {
@@ -434,7 +434,7 @@ class Mongo(Service):
 
         return response
 
-    async def list_backups(
+    def list_backups(
         self,
         database_id: str,
         queries: Optional[List[str]] = None,
@@ -472,7 +472,7 @@ class Mongo(Service):
         if total is not None:
             api_params['total'] = self._normalize_value(total)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -484,7 +484,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabaseBackupList)
 
-    async def create_backup(
+    def create_backup(
         self,
         database_id: str,
         type: Optional[str] = None,
@@ -517,7 +517,7 @@ class Mongo(Service):
         if type is not None:
             api_params['type'] = self._normalize_value(type)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -530,7 +530,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabaseBackup)
 
-    async def list_backup_policies(
+    def list_backup_policies(
         self,
         database_id: str,
         queries: Optional[List[str]] = None,
@@ -568,7 +568,7 @@ class Mongo(Service):
         if total is not None:
             api_params['total'] = self._normalize_value(total)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -580,7 +580,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=BackupPolicyList)
 
-    async def create_backup_policy(
+    def create_backup_policy(
         self,
         database_id: str,
         policy_id: str,
@@ -642,7 +642,7 @@ class Mongo(Service):
         if enabled is not None:
             api_params['enabled'] = self._normalize_value(enabled)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -655,7 +655,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=BackupPolicy)
 
-    async def get_backup_policy(
+    def get_backup_policy(
         self,
         database_id: str,
         policy_id: str,
@@ -689,7 +689,7 @@ class Mongo(Service):
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
         api_path = api_path.replace('{policyId}', self._encode_path(policy_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -701,7 +701,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=BackupPolicy)
 
-    async def update_backup_policy(
+    def update_backup_policy(
         self,
         database_id: str,
         policy_id: str,
@@ -755,7 +755,7 @@ class Mongo(Service):
         if enabled is not None:
             api_params['enabled'] = self._normalize_value(enabled)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -768,7 +768,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=BackupPolicy)
 
-    async def delete_backup_policy(
+    def delete_backup_policy(
         self,
         database_id: str,
         policy_id: str,
@@ -802,7 +802,7 @@ class Mongo(Service):
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
         api_path = api_path.replace('{policyId}', self._encode_path(policy_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {
@@ -815,7 +815,7 @@ class Mongo(Service):
 
         return response
 
-    async def update_backup_storage(
+    def update_backup_storage(
         self,
         database_id: str,
         provider: str,
@@ -882,7 +882,7 @@ class Mongo(Service):
         api_params['accessKey'] = self._normalize_value(access_key)
         api_params['secretKey'] = self._normalize_value(secret_key)
 
-        response = await self.client.call(
+        response = self.client.call(
             'put',
             api_path,
             {
@@ -895,7 +895,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabaseBackupStorage)
 
-    async def get_backup(
+    def get_backup(
         self,
         database_id: str,
         backup_id: str,
@@ -929,7 +929,7 @@ class Mongo(Service):
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
         api_path = api_path.replace('{backupId}', self._encode_path(backup_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -941,7 +941,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabaseBackup)
 
-    async def delete_backup(
+    def delete_backup(
         self,
         database_id: str,
         backup_id: str,
@@ -975,7 +975,7 @@ class Mongo(Service):
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
         api_path = api_path.replace('{backupId}', self._encode_path(backup_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {
@@ -988,7 +988,7 @@ class Mongo(Service):
 
         return response
 
-    async def list_branches(
+    def list_branches(
         self,
         database_id: str,
     ) -> DedicatedDatabaseBranchList:
@@ -1016,7 +1016,7 @@ class Mongo(Service):
             raise AppwriteException('Missing required parameter: "database_id"')
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -1028,7 +1028,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabaseBranchList)
 
-    async def create_branch(
+    def create_branch(
         self,
         database_id: str,
         branch_id: Optional[str] = None,
@@ -1066,7 +1066,7 @@ class Mongo(Service):
         if ttl is not None:
             api_params['ttl'] = self._normalize_value(ttl)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -1079,7 +1079,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabase)
 
-    async def delete_branch(
+    def delete_branch(
         self,
         database_id: str,
         branch_id: str,
@@ -1113,7 +1113,7 @@ class Mongo(Service):
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
         api_path = api_path.replace('{branchId}', self._encode_path(branch_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {
@@ -1126,7 +1126,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabase)
 
-    async def update_credentials(
+    def update_credentials(
         self,
         database_id: str,
     ) -> DedicatedDatabaseOperation:
@@ -1154,7 +1154,7 @@ class Mongo(Service):
             raise AppwriteException('Missing required parameter: "database_id"')
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -1167,7 +1167,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabaseOperation)
 
-    async def create_failover(
+    def create_failover(
         self,
         database_id: str,
         target_replica_id: Optional[str] = None,
@@ -1200,7 +1200,7 @@ class Mongo(Service):
         if target_replica_id is not None:
             api_params['targetReplicaId'] = self._normalize_value(target_replica_id)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -1213,7 +1213,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabase)
 
-    async def update_maintenance(
+    def update_maintenance(
         self,
         database_id: str,
         day: str,
@@ -1253,7 +1253,7 @@ class Mongo(Service):
         api_params['day'] = self._normalize_value(day)
         api_params['hourUtc'] = self._normalize_value(hour_utc)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -1266,7 +1266,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabase)
 
-    async def create_migration(
+    def create_migration(
         self,
         database_id: str,
         target_type: str,
@@ -1305,7 +1305,7 @@ class Mongo(Service):
         if specification is not None:
             api_params['specification'] = self._normalize_value(specification)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -1318,7 +1318,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabase)
 
-    async def list_operations(
+    def list_operations(
         self,
         database_id: str,
         status: Optional[str] = None,
@@ -1361,7 +1361,7 @@ class Mongo(Service):
         if offset is not None:
             api_params['offset'] = self._normalize_value(offset)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -1373,7 +1373,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabaseOperationList)
 
-    async def get_pitr(
+    def get_pitr(
         self,
         database_id: str,
     ) -> DedicatedDatabasePITRWindows:
@@ -1401,7 +1401,7 @@ class Mongo(Service):
             raise AppwriteException('Missing required parameter: "database_id"')
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -1413,7 +1413,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabasePITRWindows)
 
-    async def get_replicas(
+    def get_replicas(
         self,
         database_id: str,
     ) -> DedicatedDatabaseReplicas:
@@ -1441,7 +1441,7 @@ class Mongo(Service):
             raise AppwriteException('Missing required parameter: "database_id"')
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -1453,7 +1453,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabaseReplicas)
 
-    async def list_restorations(
+    def list_restorations(
         self,
         database_id: str,
         status: Optional[str] = None,
@@ -1501,7 +1501,7 @@ class Mongo(Service):
         if offset is not None:
             api_params['offset'] = self._normalize_value(offset)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -1513,7 +1513,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabaseRestorationList)
 
-    async def create_restoration(
+    def create_restoration(
         self,
         database_id: str,
         type: Optional[str] = None,
@@ -1578,7 +1578,7 @@ class Mongo(Service):
         if auto_promote is not None:
             api_params['autoPromote'] = self._normalize_value(auto_promote)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -1591,7 +1591,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabaseRestoration)
 
-    async def get_restoration(
+    def get_restoration(
         self,
         database_id: str,
         restoration_id: str,
@@ -1625,7 +1625,7 @@ class Mongo(Service):
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
         api_path = api_path.replace('{restorationId}', self._encode_path(restoration_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -1637,7 +1637,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabaseRestoration)
 
-    async def promote_restoration(
+    def promote_restoration(
         self,
         database_id: str,
         restoration_id: str,
@@ -1674,7 +1674,7 @@ class Mongo(Service):
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
         api_path = api_path.replace('{restorationId}', self._encode_path(restoration_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -1687,7 +1687,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DedicatedDatabaseRestoration)
 
-    async def get_status(
+    def get_status(
         self,
         database_id: str,
     ) -> DatabaseStatus:
@@ -1715,7 +1715,7 @@ class Mongo(Service):
             raise AppwriteException('Missing required parameter: "database_id"')
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -1727,7 +1727,7 @@ class Mongo(Service):
 
         return self._parse_response(response, model=DatabaseStatus)
 
-    async def create_upgrade(
+    def create_upgrade(
         self,
         database_id: str,
         target_version: str,
@@ -1761,7 +1761,7 @@ class Mongo(Service):
         api_path = api_path.replace('{databaseId}', self._encode_path(database_id))
         api_params['targetVersion'] = self._normalize_value(target_version)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {

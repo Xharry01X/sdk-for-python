@@ -27,7 +27,7 @@ class Functions(Service):
     def __init__(self, client) -> None:
         super(Functions, self).__init__(client)
 
-    async def list(
+    def list(
         self,
         queries: Optional[List[str]] = None,
         search: Optional[str] = None,
@@ -64,7 +64,7 @@ class Functions(Service):
         if total is not None:
             api_params['total'] = self._normalize_value(total)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -76,7 +76,7 @@ class Functions(Service):
 
         return self._parse_response(response, model=FunctionList)
 
-    async def create(
+    def create(
         self,
         function_id: str,
         name: str,
@@ -221,7 +221,7 @@ class Functions(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -234,7 +234,7 @@ class Functions(Service):
 
         return self._parse_response(response, model=Function)
 
-    async def list_runtimes(
+    def list_runtimes(
         self,
         total: Optional[bool] = None,
     ) -> RuntimeList:
@@ -261,7 +261,7 @@ class Functions(Service):
         if total is not None:
             api_params['total'] = self._normalize_value(total)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -273,7 +273,7 @@ class Functions(Service):
 
         return self._parse_response(response, model=RuntimeList)
 
-    async def list_specifications(
+    def list_specifications(
         self,
         type: Optional[str] = None,
         total: Optional[bool] = None,
@@ -305,7 +305,7 @@ class Functions(Service):
         if total is not None:
             api_params['total'] = self._normalize_value(total)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -317,7 +317,7 @@ class Functions(Service):
 
         return self._parse_response(response, model=SpecificationList)
 
-    async def get(
+    def get(
         self,
         function_id: str,
     ) -> Function:
@@ -345,7 +345,7 @@ class Functions(Service):
             raise AppwriteException('Missing required parameter: "function_id"')
         api_path = api_path.replace('{functionId}', self._encode_path(function_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -357,7 +357,7 @@ class Functions(Service):
 
         return self._parse_response(response, model=Function)
 
-    async def update(
+    def update(
         self,
         function_id: str,
         name: str,
@@ -506,7 +506,7 @@ class Functions(Service):
         if email_enabled is not None:
             api_params['emailEnabled'] = self._normalize_value(email_enabled)
 
-        response = await self.client.call(
+        response = self.client.call(
             'put',
             api_path,
             {
@@ -519,7 +519,7 @@ class Functions(Service):
 
         return self._parse_response(response, model=Function)
 
-    async def delete(
+    def delete(
         self,
         function_id: str,
     ) -> Dict[str, Any]:
@@ -547,7 +547,7 @@ class Functions(Service):
             raise AppwriteException('Missing required parameter: "function_id"')
         api_path = api_path.replace('{functionId}', self._encode_path(function_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {
@@ -560,7 +560,7 @@ class Functions(Service):
 
         return response
 
-    async def update_function_deployment(
+    def update_function_deployment(
         self,
         function_id: str,
         deployment_id: str,
@@ -594,7 +594,7 @@ class Functions(Service):
         api_path = api_path.replace('{functionId}', self._encode_path(function_id))
         api_params['deploymentId'] = self._normalize_value(deployment_id)
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -607,7 +607,7 @@ class Functions(Service):
 
         return self._parse_response(response, model=Function)
 
-    async def list_deployments(
+    def list_deployments(
         self,
         function_id: str,
         queries: Optional[List[str]] = None,
@@ -650,7 +650,7 @@ class Functions(Service):
         if total is not None:
             api_params['total'] = self._normalize_value(total)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -662,7 +662,7 @@ class Functions(Service):
 
         return self._parse_response(response, model=DeploymentList)
 
-    async def create_deployment(
+    def create_deployment(
         self,
         function_id: str,
         code: InputFile,
@@ -724,7 +724,7 @@ class Functions(Service):
 
         upload_id = ''
 
-        response = await self.client.chunked_upload(
+        response = self.client.chunked_upload(
             api_path,
             {
                 'X-Appwrite-Project': self.client.get_config('project'),
@@ -740,7 +740,7 @@ class Functions(Service):
 
         return self._parse_response(response, model=Deployment)
 
-    async def create_duplicate_deployment(
+    def create_duplicate_deployment(
         self,
         function_id: str,
         deployment_id: str,
@@ -779,7 +779,7 @@ class Functions(Service):
         if build_id is not None:
             api_params['buildId'] = self._normalize_value(build_id)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -792,7 +792,7 @@ class Functions(Service):
 
         return self._parse_response(response, model=Deployment)
 
-    async def create_template_deployment(
+    def create_template_deployment(
         self,
         function_id: str,
         repository: str,
@@ -857,7 +857,7 @@ class Functions(Service):
         if activate is not None:
             api_params['activate'] = self._normalize_value(activate)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -870,7 +870,7 @@ class Functions(Service):
 
         return self._parse_response(response, model=Deployment)
 
-    async def create_vcs_deployment(
+    def create_vcs_deployment(
         self,
         function_id: str,
         type: VCSReferenceType,
@@ -917,7 +917,7 @@ class Functions(Service):
         if activate is not None:
             api_params['activate'] = self._normalize_value(activate)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -930,7 +930,7 @@ class Functions(Service):
 
         return self._parse_response(response, model=Deployment)
 
-    async def get_deployment(
+    def get_deployment(
         self,
         function_id: str,
         deployment_id: str,
@@ -964,7 +964,7 @@ class Functions(Service):
         api_path = api_path.replace('{functionId}', self._encode_path(function_id))
         api_path = api_path.replace('{deploymentId}', self._encode_path(deployment_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -976,7 +976,7 @@ class Functions(Service):
 
         return self._parse_response(response, model=Deployment)
 
-    async def delete_deployment(
+    def delete_deployment(
         self,
         function_id: str,
         deployment_id: str,
@@ -1010,7 +1010,7 @@ class Functions(Service):
         api_path = api_path.replace('{functionId}', self._encode_path(function_id))
         api_path = api_path.replace('{deploymentId}', self._encode_path(deployment_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {
@@ -1023,7 +1023,7 @@ class Functions(Service):
 
         return response
 
-    async def get_deployment_download(
+    def get_deployment_download(
         self,
         function_id: str,
         deployment_id: str,
@@ -1067,7 +1067,7 @@ class Functions(Service):
         if token is not None:
             api_params['token'] = self._normalize_value(token)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -1079,7 +1079,7 @@ class Functions(Service):
 
         return response
 
-    async def update_deployment_status(
+    def update_deployment_status(
         self,
         function_id: str,
         deployment_id: str,
@@ -1113,7 +1113,7 @@ class Functions(Service):
         api_path = api_path.replace('{functionId}', self._encode_path(function_id))
         api_path = api_path.replace('{deploymentId}', self._encode_path(deployment_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'patch',
             api_path,
             {
@@ -1126,7 +1126,7 @@ class Functions(Service):
 
         return self._parse_response(response, model=Deployment)
 
-    async def list_executions(
+    def list_executions(
         self,
         function_id: str,
         queries: Optional[List[str]] = None,
@@ -1164,7 +1164,7 @@ class Functions(Service):
         if total is not None:
             api_params['total'] = self._normalize_value(total)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -1176,7 +1176,7 @@ class Functions(Service):
 
         return self._parse_response(response, model=ExecutionList)
 
-    async def create_execution(
+    def create_execution(
         self,
         function_id: str,
         body: Optional[str] = None,
@@ -1234,7 +1234,7 @@ class Functions(Service):
         if scheduled_at is not None:
             api_params['scheduledAt'] = self._normalize_value(scheduled_at)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -1247,7 +1247,7 @@ class Functions(Service):
 
         return self._parse_response(response, model=Execution)
 
-    async def get_execution(
+    def get_execution(
         self,
         function_id: str,
         execution_id: str,
@@ -1281,7 +1281,7 @@ class Functions(Service):
         api_path = api_path.replace('{functionId}', self._encode_path(function_id))
         api_path = api_path.replace('{executionId}', self._encode_path(execution_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -1293,7 +1293,7 @@ class Functions(Service):
 
         return self._parse_response(response, model=Execution)
 
-    async def delete_execution(
+    def delete_execution(
         self,
         function_id: str,
         execution_id: str,
@@ -1327,7 +1327,7 @@ class Functions(Service):
         api_path = api_path.replace('{functionId}', self._encode_path(function_id))
         api_path = api_path.replace('{executionId}', self._encode_path(execution_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {
@@ -1340,7 +1340,7 @@ class Functions(Service):
 
         return response
 
-    async def list_variables(
+    def list_variables(
         self,
         function_id: str,
         queries: Optional[List[str]] = None,
@@ -1378,7 +1378,7 @@ class Functions(Service):
         if total is not None:
             api_params['total'] = self._normalize_value(total)
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -1390,7 +1390,7 @@ class Functions(Service):
 
         return self._parse_response(response, model=VariableList)
 
-    async def create_variable(
+    def create_variable(
         self,
         function_id: str,
         variable_id: str,
@@ -1446,7 +1446,7 @@ class Functions(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'post',
             api_path,
             {
@@ -1459,7 +1459,7 @@ class Functions(Service):
 
         return self._parse_response(response, model=Variable)
 
-    async def get_variable(
+    def get_variable(
         self,
         function_id: str,
         variable_id: str,
@@ -1493,7 +1493,7 @@ class Functions(Service):
         api_path = api_path.replace('{functionId}', self._encode_path(function_id))
         api_path = api_path.replace('{variableId}', self._encode_path(variable_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'get',
             api_path,
             {
@@ -1505,7 +1505,7 @@ class Functions(Service):
 
         return self._parse_response(response, model=Variable)
 
-    async def update_variable(
+    def update_variable(
         self,
         function_id: str,
         variable_id: str,
@@ -1559,7 +1559,7 @@ class Functions(Service):
         if description is not None:
             api_params['description'] = self._normalize_value(description)
 
-        response = await self.client.call(
+        response = self.client.call(
             'put',
             api_path,
             {
@@ -1572,7 +1572,7 @@ class Functions(Service):
 
         return self._parse_response(response, model=Variable)
 
-    async def delete_variable(
+    def delete_variable(
         self,
         function_id: str,
         variable_id: str,
@@ -1606,7 +1606,7 @@ class Functions(Service):
         api_path = api_path.replace('{functionId}', self._encode_path(function_id))
         api_path = api_path.replace('{variableId}', self._encode_path(variable_id))
 
-        response = await self.client.call(
+        response = self.client.call(
             'delete',
             api_path,
             {

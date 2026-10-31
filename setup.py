@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as readme_file_desc:
 
 setuptools.setup(
     name='appwrite',
-    packages=setuptools.find_packages(exclude=['test', 'test.*', 'test_sync', 'test_sync.*']),
+    packages=setuptools.find_packages(),
     version='27.1.0',
     license='BSD-3-Clause',
     description='Appwrite is an open-source self-hosted backend server that abstracts and simplifies complex and repetitive development tasks behind a very simple REST API',
@@ -20,11 +20,17 @@ setuptools.setup(
     url='https://appwrite.io/support',
     download_url='https://github.com/appwrite/sdk-for-python/archive/27.1.0.tar.gz',
     install_requires=[
-        'httpx2>=2.0,<3',
+        'requests>=2.34.2,<3',
+        'urllib3>=2.8.0,<3',
         'pydantic>=2,<3',
-        'anyio>=4,<5',
     ],
-    python_requires='>=3.11',
+    extras_require={
+        'async': [
+            'httpx2>=2.0,<3',
+            'anyio>=4,<5',
+        ],
+    },
+    python_requires='>=3.10',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
@@ -32,6 +38,7 @@ setuptools.setup(
         'Topic :: Software Development',
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: 3.13',
