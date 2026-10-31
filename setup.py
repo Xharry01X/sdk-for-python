@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as readme_file_desc:
 
 setuptools.setup(
     name='appwrite',
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(exclude=['test', 'test.*', 'test_sync', 'test_sync.*']),
     version='27.1.0',
     license='BSD-3-Clause',
     description='Appwrite is an open-source self-hosted backend server that abstracts and simplifies complex and repetitive development tasks behind a very simple REST API',

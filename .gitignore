@@ -24,3 +24,7 @@ htmlcov/
 .idea/
 .vscode/
 .DS_Store
+
+# Generated sync mirror (python make_sync.py)
+appwrite_sync/
+test_sync/

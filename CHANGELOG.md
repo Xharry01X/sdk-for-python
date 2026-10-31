@@ -1,5 +1,10 @@
 # Change Log
 
+## Unreleased
+
+* Added: make_sync.py code generator that mirrors the async appwrite package into a synchronous appwrite_sync package, with a matching test_sync suite
+* Added: the generated `appwrite_sync` package and `test_sync` suite are gitignored; regenerate with `pip install unasync` and `python make_sync.py` after pulling changes
+
 ## 27.1.0
 
 * Added: `migrations` service to run Appwrite, Firebase, NHost, Supabase, CSV and JSON migrations, plus retries and listing
